@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroConnect } from './components/HeroConnect';
 import { SystemGraph } from './components/SystemGraph/SystemGraph';
@@ -39,6 +39,7 @@ const INITIAL_STAGES: Record<StageId, PipelineNodeData> = {
 };
 
 export function App() {
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [appState, setAppState] = useState<AppState>('DISCONNECTED');
   const [stageStates, setStageStates] = useState<Record<StageId, PipelineNodeData>>(INITIAL_STAGES);
   const [traceLogs, setTraceLogs] = useState<TraceLog[]>([]);
@@ -58,6 +59,14 @@ export function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [lastAttemptedUrl, setLastAttemptedUrl] = useState<string>('');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const addLog = useCallback((stage: string, level: TraceLog['level'], message: string, details?: string) => {
     const newLog: TraceLog = {
@@ -227,11 +236,15 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col font-sans overflow-hidden">
+    <div className={`min-h-screen flex flex-col font-sans overflow-hidden transition-colors ${
+      theme === 'light' ? 'bg-slate-50 text-slate-900' : 'bg-[#07090e] text-slate-100'
+    }`}>
       <Navbar
         apiStatus={appState === 'READY' ? 'ONLINE' : appState === 'PROCESSING' ? 'STANDBY' : 'ERROR'}
         mcpStatus={appState === 'READY' ? 'ACTIVE' : 'IDLE'}
         ragStatus={appState === 'READY' ? 'INDEXED' : 'UNINDEXED'}
+        theme={theme}
+        onToggleTheme={toggleTheme}
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
@@ -239,6 +252,7 @@ export function App() {
         <HeroConnect
           onConnect={runPipelineProcess}
           isLoading={false}
+          theme={theme}
         />
       )}
 
@@ -246,19 +260,21 @@ export function App() {
         <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden">
           <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden">
             
-            <div className="md:col-span-3 h-full overflow-hidden border-r border-[#1a2234]">
+            <div className="md:col-span-3 h-full overflow-hidden">
               <ApiDataPanel
                 apiData={apiData}
                 nlpAnalysis={nlpAnalysis}
                 vectorEmbedding={vectorEmbedding}
                 highlightedRecordId={highlightedRecordId}
+                theme={theme}
               />
             </div>
 
-            <div className="md:col-span-5 h-full overflow-hidden border-r border-[#1a2234]">
+            <div className="md:col-span-5 h-full overflow-hidden">
               <SystemGraph
                 stageStates={stageStates}
                 activeToolCall={activeToolCall}
+                theme={theme}
               />
             </div>
 
@@ -270,6 +286,7 @@ export function App() {
                 activeProcessingStep={activeProcessingStep}
                 activeRagChunks={activeRagChunks}
                 onSelectSourceRecord={handleSelectSourceRecord}
+                theme={theme}
               />
             </div>
 
@@ -279,6 +296,7 @@ export function App() {
             <LiveTraceConsole
               logs={traceLogs}
               onClearLogs={() => setTraceLogs([])}
+              theme={theme}
             />
           </div>
         </div>

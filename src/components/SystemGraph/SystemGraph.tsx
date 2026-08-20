@@ -15,6 +15,7 @@ import { Server, Cpu } from 'lucide-react';
 interface SystemGraphProps {
   stageStates: Record<StageId, PipelineNodeData>;
   activeToolCall?: string;
+  theme?: 'dark' | 'light';
 }
 
 const INITIAL_NODES_CONFIG: { id: StageId; label: string; category: PipelineNodeData['category']; x: number; y: number }[] = [
@@ -30,7 +31,8 @@ const INITIAL_NODES_CONFIG: { id: StageId; label: string; category: PipelineNode
   { id: 'llm', label: 'LLM INFERENCE', category: 'llm', x: 250, y: 1280 }
 ];
 
-export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToolCall }) => {
+export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToolCall, theme = 'dark' }) => {
+  const isLight = theme === 'light';
   const nodeTypes = useMemo(() => ({ pipelineNode: PipelineNodeComponent }), []);
 
   const nodes: Node[] = useMemo(() => {
@@ -48,11 +50,12 @@ export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToo
         position: { x: cfg.x, y: cfg.y },
         data: {
           ...liveState,
+          theme,
           activeTool: cfg.id === 'mcp_server' ? activeToolCall : undefined
         }
       };
     });
-  }, [stageStates, activeToolCall]);
+  }, [stageStates, activeToolCall, theme]);
 
   const edges: Edge[] = useMemo(() => {
     const list: Edge[] = [];
@@ -66,9 +69,9 @@ export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToo
       const isEdgeActive = sourceStatus === 'PROCESSING' || targetStatus === 'PROCESSING' || sourceStatus === 'COMPLETE';
       const isCurrentlyMoving = sourceStatus === 'PROCESSING' || targetStatus === 'PROCESSING';
 
-      let edgeColor = '#232d42';
-      if (isCurrentlyMoving) edgeColor = '#06b6d4';
-      else if (sourceStatus === 'COMPLETE') edgeColor = '#10b981';
+      let edgeColor = isLight ? '#cbd5e1' : '#232d42';
+      if (isCurrentlyMoving) edgeColor = isLight ? '#0f172a' : '#10b981';
+      else if (sourceStatus === 'COMPLETE') edgeColor = isLight ? '#475569' : '#10b981';
 
       list.push({
         id: `e-${sourceId}-${targetId}`,
@@ -87,36 +90,43 @@ export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToo
       });
     }
     return list;
-  }, [stageStates]);
+  }, [stageStates, isLight]);
 
   return (
-    <div className="relative w-full h-full bg-[#07090e] border-r border-[#1a2234] flex flex-col select-none overflow-hidden">
-      <div className="h-10 border-b border-[#1a2234] bg-[#0d121d] px-4 flex items-center justify-between text-xs font-mono">
-        <div className="flex items-center gap-2 text-slate-200 font-semibold uppercase tracking-wider">
-          <Cpu className="w-4 h-4 text-cyan-400" />
+    <div className={`relative w-full h-full border-r flex flex-col select-none overflow-hidden transition-colors ${
+      isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#07090e] border-[#1a2234]'
+    }`}>
+      {/* Header Bar */}
+      <div className={`h-10 border-b px-4 flex items-center justify-between text-xs font-mono ${
+        isLight ? 'bg-white border-slate-200 text-slate-800' : 'bg-[#0d121d] border-[#1a2234] text-slate-200'
+      }`}>
+        <div className="flex items-center gap-2 font-semibold uppercase tracking-wider">
+          <Cpu className={`w-4 h-4 ${isLight ? 'text-slate-900' : 'text-emerald-400'}`} />
           <span>MCP / AI NEURAL PIPELINE</span>
         </div>
 
-        <div className="flex items-center gap-3 text-[11px] text-slate-400">
+        {/* Legend */}
+        <div className="flex items-center gap-3 text-[11px]">
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+            <span className={`w-2 h-2 rounded-full animate-pulse ${isLight ? 'bg-slate-900' : 'bg-emerald-400'}`} />
             <span>Active</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span className={`w-2 h-2 rounded-full ${isLight ? 'bg-slate-700' : 'bg-emerald-400'}`} />
             <span>Complete</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-slate-600" />
+            <span className={`w-2 h-2 rounded-full ${isLight ? 'bg-slate-300' : 'bg-slate-600'}`} />
             <span>Waiting</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-red-400" />
+            <span className="w-2 h-2 rounded-full bg-red-500" />
             <span>Error</span>
           </div>
         </div>
       </div>
 
+      {/* Main Graph Canvas */}
       <div className="flex-1 w-full h-full relative">
         <ReactFlow
           nodes={nodes}
@@ -127,21 +137,32 @@ export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToo
           minZoom={0.4}
           maxZoom={1.5}
           proOptions={{ hideAttribution: true }}
-          className="bg-[#07090e]"
+          className={isLight ? 'bg-slate-50' : 'bg-[#07090e]'}
         >
-          <Background color="#161f30" variant={BackgroundVariant.Dots} gap={24} size={1} />
+          <Background 
+            color={isLight ? '#cbd5e1' : '#161f30'} 
+            variant={BackgroundVariant.Dots} 
+            gap={24} 
+            size={1} 
+          />
           <Controls 
-            className="!bg-[#0d121d] !border-[#1e2638] !fill-slate-300 !rounded-lg"
+            className={isLight 
+              ? '!bg-white !border-slate-300 !fill-slate-800 !rounded-lg shadow-sm'
+              : '!bg-[#0d121d] !border-[#1e2638] !fill-slate-300 !rounded-lg'
+            }
           />
         </ReactFlow>
       </div>
 
-      <div className="h-8 border-t border-[#1a2234] bg-[#0a0d14] px-4 flex items-center justify-between text-[11px] font-mono text-slate-400">
+      {/* Telemetry Footer */}
+      <div className={`h-8 border-t px-4 flex items-center justify-between text-[11px] font-mono ${
+        isLight ? 'bg-white border-slate-200 text-slate-700' : 'bg-[#0a0d14] border-[#1a2234] text-slate-400'
+      }`}>
         <div className="flex items-center gap-2">
-          <Server className="w-3.5 h-3.5 text-emerald-400" />
+          <Server className={`w-3.5 h-3.5 ${isLight ? 'text-slate-800' : 'text-emerald-400'}`} />
           <span>MCP PROTOCOL ACTIVE: 3 TOOLS DISPATCHABLE</span>
         </div>
-        <div className="flex items-center gap-2 text-slate-500">
+        <div className="flex items-center gap-2 font-semibold">
           <span>VECTOR DB: 384-DIM COSINE INDEX</span>
         </div>
       </div>

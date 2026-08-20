@@ -17,79 +17,94 @@ import {
 } from 'lucide-react';
 import type { PipelineNodeData } from '../../types';
 
+interface ExtendedNodeData extends PipelineNodeData {
+  theme?: 'dark' | 'light';
+}
+
 const stageIcons: Record<string, React.ReactNode> = {
-  api: <Network className="w-4 h-4 text-cyan-400" />,
-  json_parser: <FileCode className="w-4 h-4 text-cyan-400" />,
-  nlp: <Cpu className="w-4 h-4 text-purple-400" />,
-  tokenizer: <Layers className="w-4 h-4 text-purple-400" />,
-  chunker: <Scissors className="w-4 h-4 text-purple-400" />,
-  embedding: <Binary className="w-4 h-4 text-blue-400" />,
-  vector_db: <Database className="w-4 h-4 text-amber-400" />,
-  mcp_server: <Server className="w-4 h-4 text-emerald-400" />,
-  rag: <Search className="w-4 h-4 text-pink-400" />,
-  llm: <Sparkles className="w-4 h-4 text-indigo-400" />
+  api: <Network className="w-4 h-4" />,
+  json_parser: <FileCode className="w-4 h-4" />,
+  nlp: <Cpu className="w-4 h-4" />,
+  tokenizer: <Layers className="w-4 h-4" />,
+  chunker: <Scissors className="w-4 h-4" />,
+  embedding: <Binary className="w-4 h-4" />,
+  vector_db: <Database className="w-4 h-4" />,
+  mcp_server: <Server className="w-4 h-4" />,
+  rag: <Search className="w-4 h-4" />,
+  llm: <Sparkles className="w-4 h-4" />
 };
 
-const categoryBorders: Record<string, string> = {
-  api: 'border-cyan-500/50 shadow-[0_0_16px_rgba(6,182,212,0.15)]',
-  nlp: 'border-purple-500/50 shadow-[0_0_16px_rgba(168,85,247,0.15)]',
-  embedding: 'border-blue-500/50 shadow-[0_0_16px_rgba(59,130,246,0.15)]',
-  vector: 'border-amber-500/50 shadow-[0_0_16px_rgba(245,158,11,0.15)]',
-  mcp: 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.2)]',
-  rag: 'border-pink-500/50 shadow-[0_0_16px_rgba(236,72,153,0.15)]',
-  llm: 'border-indigo-400/50 shadow-[0_0_16px_rgba(129,140,248,0.15)]'
-};
-
-const categoryActiveGlow: Record<string, string> = {
-  api: 'border-cyan-400 shadow-[0_0_24px_rgba(6,182,212,0.4)] animate-pulse',
-  nlp: 'border-purple-400 shadow-[0_0_24px_rgba(168,85,247,0.4)] animate-pulse',
-  embedding: 'border-blue-400 shadow-[0_0_24px_rgba(59,130,246,0.4)] animate-pulse',
-  vector: 'border-amber-400 shadow-[0_0_24px_rgba(245,158,11,0.4)] animate-pulse',
-  mcp: 'border-emerald-400 shadow-[0_0_28px_rgba(16,185,129,0.5)] animate-pulse',
-  rag: 'border-pink-400 shadow-[0_0_24px_rgba(236,72,153,0.4)] animate-pulse',
-  llm: 'border-indigo-300 shadow-[0_0_24px_rgba(129,140,248,0.4)] animate-pulse'
-};
-
-export const PipelineNodeComponent = ({ data }: { data: PipelineNodeData }) => {
+export const PipelineNodeComponent = ({ data }: { data: ExtendedNodeData }) => {
+  const isLight = data.theme === 'light';
   const isProcessing = data.status === 'PROCESSING';
   const isComplete = data.status === 'COMPLETE';
   const isError = data.status === 'ERROR';
 
-  const borderStyle = isProcessing
-    ? categoryActiveGlow[data.category]
-    : isComplete
-    ? categoryBorders[data.category]
-    : isError
-    ? 'border-red-500 shadow-[0_0_16px_rgba(239,68,68,0.3)]'
-    : 'border-[#1e2638] hover:border-[#2d3a54]';
+  let borderStyle = isLight 
+    ? 'border-slate-300 bg-white text-slate-900 shadow-sm'
+    : 'border-[#1e2638] bg-[#0b0e17] text-slate-100 shadow-xl';
+
+  if (isProcessing) {
+    borderStyle = isLight
+      ? 'border-slate-900 bg-white text-slate-900 shadow-[0_0_16px_rgba(15,23,42,0.2)] animate-pulse'
+      : 'border-emerald-400 bg-[#0b0e17] text-slate-100 shadow-[0_0_24px_rgba(16,185,129,0.5)] animate-pulse';
+  } else if (isComplete) {
+    borderStyle = isLight
+      ? 'border-slate-400 bg-white text-slate-900'
+      : 'border-emerald-500/50 bg-[#0b0e17] text-slate-100 shadow-[0_0_16px_rgba(16,185,129,0.2)]';
+  } else if (isError) {
+    borderStyle = 'border-red-500 bg-red-950/20 text-red-400 shadow-[0_0_16px_rgba(239,68,68,0.3)]';
+  }
 
   return (
-    <div className={`w-52 rounded-xl bg-[#0b0e17] border ${borderStyle} p-3 transition-all select-none font-mono text-xs shadow-xl`}>
-      <Handle type="target" position={Position.Top} className="!bg-[#2d3a54] !w-2.5 !h-2.5 !border-2 !border-[#0b0e17]" />
+    <div className={`w-52 rounded-xl border p-3 transition-all select-none font-mono text-xs ${borderStyle}`}>
+      <Handle 
+        type="target" 
+        position={Position.Top} 
+        className={isLight ? '!bg-slate-400 !w-2.5 !h-2.5 !border-2 !border-white' : '!bg-[#2d3a54] !w-2.5 !h-2.5 !border-2 !border-[#0b0e17]'} 
+      />
       
-      <div className="flex items-center justify-between gap-2 border-b border-[#182030] pb-2 mb-2">
+      {/* Header Row */}
+      <div className={`flex items-center justify-between gap-2 border-b pb-2 mb-2 ${
+        isLight ? 'border-slate-200' : 'border-[#182030]'
+      }`}>
         <div className="flex items-center gap-2">
-          {stageIcons[data.id]}
-          <span className="font-bold text-slate-100 uppercase tracking-wider text-[11px]">
+          <span className={isLight ? 'text-slate-900' : 'text-emerald-400'}>
+            {stageIcons[data.id]}
+          </span>
+          <span className="font-bold uppercase tracking-wider text-[11px]">
             {data.label}
           </span>
         </div>
 
+        {/* Status Badge */}
         {isProcessing && (
-          <span className="flex items-center gap-1 text-[10px] text-cyan-400 bg-cyan-950/80 px-1.5 py-0.5 rounded border border-cyan-800/80">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+          <span className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border font-semibold ${
+            isLight
+              ? 'bg-slate-100 text-slate-900 border-slate-300'
+              : 'bg-emerald-950/80 text-emerald-400 border-emerald-800/80'
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full animate-ping ${isLight ? 'bg-slate-900' : 'bg-emerald-400'}`} />
             BUSY
           </span>
         )}
         {isComplete && (
-          <span className="flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/60">
+          <span className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border font-semibold ${
+            isLight
+              ? 'bg-slate-100 text-slate-800 border-slate-300'
+              : 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60'
+          }`}>
             <CheckCircle2 className="w-3 h-3 text-emerald-400" />
             OK
           </span>
         )}
         {data.status === 'WAITING' && (
-          <span className="flex items-center gap-1 text-[10px] text-slate-500 bg-[#111622] px-1.5 py-0.5 rounded border border-[#1e2638]">
-            <Clock className="w-3 h-3 text-slate-500" />
+          <span className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border ${
+            isLight
+              ? 'bg-slate-100 text-slate-500 border-slate-200'
+              : 'bg-[#111622] text-slate-500 border-[#1e2638]'
+          }`}>
+            <Clock className="w-3 h-3 text-slate-400" />
             WAIT
           </span>
         )}
@@ -101,50 +116,54 @@ export const PipelineNodeComponent = ({ data }: { data: PipelineNodeData }) => {
         )}
       </div>
 
-      <div className="space-y-1 text-[10px] text-slate-400">
+      {/* Metrics Row */}
+      <div className={`space-y-1 text-[10px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
         {data.metrics?.recordsCount !== undefined && (
           <div className="flex justify-between">
-            <span className="text-slate-500">Records:</span>
-            <span className="text-cyan-400 font-semibold">{data.metrics.recordsCount}</span>
+            <span>Records:</span>
+            <span className={`font-semibold ${isLight ? 'text-slate-900' : 'text-emerald-400'}`}>{data.metrics.recordsCount}</span>
           </div>
         )}
         {data.metrics?.fieldsCount !== undefined && (
           <div className="flex justify-between">
-            <span className="text-slate-500">Fields:</span>
-            <span className="text-cyan-400 font-semibold">{data.metrics.fieldsCount}</span>
+            <span>Fields:</span>
+            <span className={`font-semibold ${isLight ? 'text-slate-900' : 'text-emerald-400'}`}>{data.metrics.fieldsCount}</span>
           </div>
         )}
         {data.metrics?.tokensCount !== undefined && (
           <div className="flex justify-between">
-            <span className="text-slate-500">Tokens:</span>
-            <span className="text-purple-400 font-semibold">{data.metrics.tokensCount}</span>
+            <span>Tokens:</span>
+            <span className={`font-semibold ${isLight ? 'text-slate-900' : 'text-emerald-400'}`}>{data.metrics.tokensCount}</span>
           </div>
         )}
         {data.metrics?.chunksCount !== undefined && (
           <div className="flex justify-between">
-            <span className="text-slate-500">Chunks:</span>
-            <span className="text-purple-400 font-semibold">{data.metrics.chunksCount}</span>
+            <span>Chunks:</span>
+            <span className={`font-semibold ${isLight ? 'text-slate-900' : 'text-emerald-400'}`}>{data.metrics.chunksCount}</span>
           </div>
         )}
         {data.metrics?.dimensions !== undefined && (
           <div className="flex justify-between">
-            <span className="text-slate-500">Embedding:</span>
-            <span className="text-blue-400 font-semibold">{data.metrics.dimensions}-dim</span>
+            <span>Embedding:</span>
+            <span className={`font-semibold ${isLight ? 'text-slate-900' : 'text-emerald-400'}`}>{data.metrics.dimensions}-dim</span>
           </div>
         )}
         {data.metrics?.latencyMs !== undefined && (
           <div className="flex justify-between">
-            <span className="text-slate-500">Latency:</span>
-            <span className="text-slate-300">{data.metrics.latencyMs} ms</span>
+            <span>Latency:</span>
+            <span className="font-medium">{data.metrics.latencyMs} ms</span>
           </div>
         )}
       </div>
 
+      {/* Expandable MCP Tools list for MCP Server node */}
       {data.id === 'mcp_server' && (
-        <div className="mt-2.5 pt-2 border-t border-[#1e2638] space-y-1.5">
+        <div className={`mt-2.5 pt-2 border-t space-y-1.5 ${isLight ? 'border-slate-200' : 'border-[#1e2638]'}`}>
           <div className="flex items-center justify-between text-[10px]">
-            <span className="text-emerald-400 font-bold tracking-wider">MCP TOOLS</span>
-            <span className="text-[9px] bg-emerald-950 text-emerald-400 px-1 rounded font-mono">
+            <span className={`font-bold tracking-wider ${isLight ? 'text-slate-900' : 'text-emerald-400'}`}>MCP TOOLS</span>
+            <span className={`text-[9px] px-1 rounded font-mono ${
+              isLight ? 'bg-slate-100 text-slate-800 border border-slate-300' : 'bg-emerald-950 text-emerald-400'
+            }`}>
               3 DISPATCHABLE
             </span>
           </div>
@@ -156,15 +175,19 @@ export const PipelineNodeComponent = ({ data }: { data: PipelineNodeData }) => {
                   key={toolName}
                   className={`px-2 py-1 rounded text-[10px] font-mono flex items-center justify-between transition-all ${
                     isToolActive
-                      ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/80 shadow-[0_0_10px_rgba(16,185,129,0.3)] animate-pulse'
-                      : 'bg-[#111622] text-slate-300 border border-[#1e2638]'
+                      ? isLight 
+                        ? 'bg-slate-900 text-white font-bold'
+                        : 'bg-emerald-950 text-emerald-300 border border-emerald-500/80 shadow-[0_0_10px_rgba(16,185,129,0.3)] animate-pulse'
+                      : isLight
+                        ? 'bg-slate-100 text-slate-700 border border-slate-200'
+                        : 'bg-[#111622] text-slate-300 border border-[#1e2638]'
                   }`}
                 >
                   <span className="font-semibold">{toolName}</span>
                   {isToolActive ? (
-                    <span className="text-[9px] text-emerald-400 font-bold uppercase">EXECUTING</span>
+                    <span className="text-[9px] font-bold uppercase">EXECUTING</span>
                   ) : (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/50" />
+                    <span className={`w-1.5 h-1.5 rounded-full ${isLight ? 'bg-slate-400' : 'bg-emerald-500/50'}`} />
                   )}
                 </div>
               );
@@ -173,7 +196,11 @@ export const PipelineNodeComponent = ({ data }: { data: PipelineNodeData }) => {
         </div>
       )}
 
-      <Handle type="source" position={Position.Bottom} className="!bg-[#2d3a54] !w-2.5 !h-2.5 !border-2 !border-[#0b0e17]" />
+      <Handle 
+        type="source" 
+        position={Position.Bottom} 
+        className={isLight ? '!bg-slate-400 !w-2.5 !h-2.5 !border-2 !border-white' : '!bg-[#2d3a54] !w-2.5 !h-2.5 !border-2 !border-[#0b0e17]'} 
+      />
     </div>
   );
 };

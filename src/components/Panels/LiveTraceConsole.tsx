@@ -5,10 +5,12 @@ import type { TraceLog } from '../../types';
 interface LiveTraceConsoleProps {
   logs: TraceLog[];
   onClearLogs: () => void;
+  theme?: 'dark' | 'light';
 }
 
-export const LiveTraceConsole: React.FC<LiveTraceConsoleProps> = ({ logs, onClearLogs }) => {
+export const LiveTraceConsole: React.FC<LiveTraceConsoleProps> = ({ logs, onClearLogs, theme = 'dark' }) => {
   const logContainerRef = useRef<HTMLDivElement>(null);
+  const isLight = theme === 'light';
 
   useEffect(() => {
     if (logContainerRef.current) {
@@ -17,12 +19,19 @@ export const LiveTraceConsole: React.FC<LiveTraceConsoleProps> = ({ logs, onClea
   }, [logs]);
 
   return (
-    <div className="w-full h-full bg-[#05070a] border-t border-[#1a2234] flex flex-col font-mono text-xs select-none">
-      <div className="h-8 border-b border-[#182030] bg-[#0d121d] px-4 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2 text-cyan-400 font-bold uppercase tracking-wider text-[11px]">
-          <Terminal className="w-3.5 h-3.5 text-cyan-400" />
+    <div className={`w-full h-full border-t flex flex-col font-mono text-xs select-none transition-colors ${
+      isLight ? 'bg-slate-900 text-slate-100 border-slate-700' : 'bg-[#05070a] text-slate-100 border-[#1a2234]'
+    }`}>
+      {/* Header */}
+      <div className={`h-8 border-b px-4 flex items-center justify-between shrink-0 ${
+        isLight ? 'bg-slate-950 border-slate-800' : 'bg-[#0d121d] border-[#182030]'
+      }`}>
+        <div className={`flex items-center gap-2 font-bold uppercase tracking-wider text-[11px] ${
+          isLight ? 'text-white' : 'text-emerald-400'
+        }`}>
+          <Terminal className="w-3.5 h-3.5" />
           <span>LIVE SYSTEM TRACE</span>
-          <span className="text-[10px] text-slate-500 font-normal">
+          <span className="text-[10px] text-slate-400 font-normal">
             ({logs.length} EVENTS RECORDED)
           </span>
         </div>
@@ -30,39 +39,40 @@ export const LiveTraceConsole: React.FC<LiveTraceConsoleProps> = ({ logs, onClea
         <div className="flex items-center gap-2">
           <button
             onClick={onClearLogs}
-            className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#131b2c] hover:bg-[#1c2840] border border-[#1e2638] text-[10px] text-slate-400 hover:text-slate-200 transition-colors"
+            className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[10px] text-slate-300 hover:text-white transition-colors"
           >
-            <Trash2 className="w-3 h-3 text-slate-400" />
+            <Trash2 className="w-3 h-3" />
             <span>CLEAR</span>
           </button>
         </div>
       </div>
 
+      {/* Logs Output */}
       <div 
         ref={logContainerRef}
-        className="flex-1 overflow-y-auto p-3 space-y-1 text-[11px] font-mono leading-relaxed custom-scrollbar bg-[#05070a]"
+        className="flex-1 overflow-y-auto p-3 space-y-1 text-[11px] font-mono leading-relaxed custom-scrollbar"
       >
         {logs.length === 0 ? (
-          <span className="text-slate-600 italic">No events logged yet. Connect an API to start telemetry stream.</span>
+          <span className="text-slate-500 italic">No events logged yet. Connect an API to start telemetry stream.</span>
         ) : (
           logs.map((log) => {
             let levelColor = 'text-slate-300';
-            if (log.level === 'success') levelColor = 'text-emerald-400 font-bold';
+            if (log.level === 'success') levelColor = isLight ? 'text-emerald-300 font-bold' : 'text-emerald-400 font-bold';
             if (log.level === 'warn') levelColor = 'text-amber-400 font-bold';
             if (log.level === 'error') levelColor = 'text-red-400 font-bold';
             if (log.level === 'mcp') levelColor = 'text-emerald-300 font-bold';
 
             return (
-              <div key={log.id} className="flex items-start gap-3 hover:bg-[#0d121d] px-1 py-0.5 rounded transition-colors">
+              <div key={log.id} className="flex items-start gap-3 hover:bg-slate-800/60 px-1 py-0.5 rounded transition-colors">
                 <span className="text-slate-500 shrink-0 select-all">{log.timestamp}</span>
-                <span className="px-1.5 py-0.2 rounded bg-[#101726] border border-[#1e2638] text-cyan-400 text-[10px] font-bold tracking-wider uppercase shrink-0">
+                <span className="px-1.5 py-0.2 rounded bg-slate-800 border border-slate-700 text-white text-[10px] font-bold tracking-wider uppercase shrink-0">
                   {log.stage}
                 </span>
                 <span className={`${levelColor} break-all`}>
                   {log.message}
                 </span>
                 {log.details && (
-                  <span className="text-slate-500 italic">[{log.details}]</span>
+                  <span className="text-slate-400 italic">[{log.details}]</span>
                 )}
               </div>
             );
