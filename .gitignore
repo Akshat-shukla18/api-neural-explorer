@@ -11,6 +11,9 @@ dist-ssr
 .system_generated
 .DS_Store
 
+# Local Interview Docs (Not pushed to GitHub)
+interview_prep.md
+
 # IDE & local env
 .vscode
 .idea

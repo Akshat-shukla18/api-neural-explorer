@@ -257,10 +257,10 @@ export function App() {
       )}
 
       {(appState === 'PROCESSING' || appState === 'READY') && (
-        <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden">
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden">
+        <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] max-w-full overflow-hidden">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden min-h-0">
             
-            <div className="md:col-span-3 h-full overflow-hidden">
+            <div className="md:col-span-3 h-full overflow-hidden min-w-0 max-w-full">
               <ApiDataPanel
                 apiData={apiData}
                 nlpAnalysis={nlpAnalysis}
@@ -270,7 +270,7 @@ export function App() {
               />
             </div>
 
-            <div className="md:col-span-5 h-full overflow-hidden">
+            <div className="md:col-span-5 h-full overflow-hidden min-w-0 max-w-full">
               <SystemGraph
                 stageStates={stageStates}
                 activeToolCall={activeToolCall}
@@ -278,7 +278,7 @@ export function App() {
               />
             </div>
 
-            <div className="md:col-span-4 h-full overflow-hidden">
+            <div className="md:col-span-4 h-full overflow-hidden min-w-0 max-w-full">
               <AiQueryPanel
                 messages={messages}
                 onSendMessage={handleSendMessage}
@@ -292,7 +292,7 @@ export function App() {
 
           </div>
 
-          <div className="h-40 shrink-0">
+          <div className="h-36 sm:h-40 shrink-0 min-w-0 max-w-full overflow-hidden">
             <LiveTraceConsole
               logs={traceLogs}
               onClearLogs={() => setTraceLogs([])}
