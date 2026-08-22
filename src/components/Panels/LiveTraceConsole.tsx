@@ -27,7 +27,7 @@ export const LiveTraceConsole: React.FC<LiveTraceConsoleProps> = ({ logs, onClea
         isLight ? 'bg-slate-950 border-slate-800' : 'bg-[#0d121d] border-[#182030]'
       }`}>
         <div className={`flex items-center gap-2 font-bold uppercase tracking-wider text-[11px] ${
-          isLight ? 'text-white' : 'text-emerald-400'
+          isLight ? 'text-white' : 'text-sky-400'
         }`}>
           <Terminal className="w-3.5 h-3.5" />
           <span>LIVE SYSTEM TRACE</span>
@@ -57,10 +57,10 @@ export const LiveTraceConsole: React.FC<LiveTraceConsoleProps> = ({ logs, onClea
         ) : (
           logs.map((log) => {
             let levelColor = 'text-slate-300';
-            if (log.level === 'success') levelColor = isLight ? 'text-emerald-300 font-bold' : 'text-emerald-400 font-bold';
+            if (log.level === 'success') levelColor = isLight ? 'text-sky-400 font-bold' : 'text-sky-400 font-bold';
             if (log.level === 'warn') levelColor = 'text-amber-400 font-bold';
             if (log.level === 'error') levelColor = 'text-red-400 font-bold';
-            if (log.level === 'mcp') levelColor = 'text-emerald-300 font-bold';
+            if (log.level === 'mcp') levelColor = 'text-sky-300 font-bold';
 
             return (
               <div key={log.id} className="flex items-start gap-3 hover:bg-slate-800/60 px-1 py-0.5 rounded transition-colors">

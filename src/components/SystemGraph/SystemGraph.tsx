@@ -70,8 +70,8 @@ export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToo
       const isCurrentlyMoving = sourceStatus === 'PROCESSING' || targetStatus === 'PROCESSING';
 
       let edgeColor = isLight ? '#cbd5e1' : '#232d42';
-      if (isCurrentlyMoving) edgeColor = isLight ? '#0f172a' : '#10b981';
-      else if (sourceStatus === 'COMPLETE') edgeColor = isLight ? '#475569' : '#10b981';
+      if (isCurrentlyMoving) edgeColor = isLight ? '#0f172a' : '#38bdf8';
+      else if (sourceStatus === 'COMPLETE') edgeColor = isLight ? '#475569' : '#38bdf8';
 
       list.push({
         id: `e-${sourceId}-${targetId}`,
@@ -101,18 +101,18 @@ export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToo
         isLight ? 'bg-white border-slate-200 text-slate-800' : 'bg-[#0d121d] border-[#1a2234] text-slate-200'
       }`}>
         <div className="flex items-center gap-2 font-semibold uppercase tracking-wider">
-          <Cpu className={`w-4 h-4 ${isLight ? 'text-slate-900' : 'text-emerald-400'}`} />
+          <Cpu className={`w-4 h-4 ${isLight ? 'text-slate-900' : 'text-sky-400'}`} />
           <span>MCP / AI NEURAL PIPELINE</span>
         </div>
 
         {/* Legend */}
         <div className="flex items-center gap-3 text-[11px]">
           <div className="flex items-center gap-1">
-            <span className={`w-2 h-2 rounded-full animate-pulse ${isLight ? 'bg-slate-900' : 'bg-emerald-400'}`} />
+            <span className={`w-2 h-2 rounded-full animate-pulse ${isLight ? 'bg-slate-900' : 'bg-sky-400'}`} />
             <span>Active</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className={`w-2 h-2 rounded-full ${isLight ? 'bg-slate-700' : 'bg-emerald-400'}`} />
+            <span className={`w-2 h-2 rounded-full ${isLight ? 'bg-slate-700' : 'bg-sky-400'}`} />
             <span>Complete</span>
           </div>
           <div className="flex items-center gap-1">
@@ -159,7 +159,7 @@ export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToo
         isLight ? 'bg-white border-slate-200 text-slate-700' : 'bg-[#0a0d14] border-[#1a2234] text-slate-400'
       }`}>
         <div className="flex items-center gap-2">
-          <Server className={`w-3.5 h-3.5 ${isLight ? 'text-slate-800' : 'text-emerald-400'}`} />
+          <Server className={`w-3.5 h-3.5 ${isLight ? 'text-slate-800' : 'text-sky-400'}`} />
           <span>MCP PROTOCOL ACTIVE: 3 TOOLS DISPATCHABLE</span>
         </div>
         <div className="flex items-center gap-2 font-semibold">

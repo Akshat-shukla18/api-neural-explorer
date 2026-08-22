@@ -257,10 +257,10 @@ export function App() {
       )}
 
       {(appState === 'PROCESSING' || appState === 'READY') && (
-        <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] max-w-full overflow-hidden">
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden min-h-0">
+        <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] max-h-[calc(100vh-3.5rem)] max-w-full overflow-hidden min-h-0">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden min-h-0 h-[calc(100vh-13.5rem)] max-h-[calc(100vh-13.5rem)]">
             
-            <div className="md:col-span-3 h-full overflow-hidden min-w-0 max-w-full">
+            <div className="md:col-span-3 h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col">
               <ApiDataPanel
                 apiData={apiData}
                 nlpAnalysis={nlpAnalysis}
@@ -270,7 +270,7 @@ export function App() {
               />
             </div>
 
-            <div className="md:col-span-5 h-full overflow-hidden min-w-0 max-w-full">
+            <div className="md:col-span-5 h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col">
               <SystemGraph
                 stageStates={stageStates}
                 activeToolCall={activeToolCall}
@@ -278,7 +278,7 @@ export function App() {
               />
             </div>
 
-            <div className="md:col-span-4 h-full overflow-hidden min-w-0 max-w-full">
+            <div className="md:col-span-4 h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col">
               <AiQueryPanel
                 messages={messages}
                 onSendMessage={handleSendMessage}

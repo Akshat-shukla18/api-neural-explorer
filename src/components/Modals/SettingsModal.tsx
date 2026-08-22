@@ -41,12 +41,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
           <div className="space-y-1.5">
             <label className="text-slate-300 font-bold block flex items-center gap-2">
-              <Server className="w-3.5 h-3.5 text-emerald-400" />
+              <Server className="w-3.5 h-3.5 text-sky-400" />
               <span>MCP Protocol Version</span>
             </label>
             <div className="p-2 rounded bg-[#05070a] border border-[#1e2638] text-slate-300 flex justify-between items-center">
               <span>Model Context Protocol (v2024-11-26)</span>
-              <span className="text-emerald-400 font-bold">ACTIVE</span>
+              <span className="text-sky-400 font-bold">ACTIVE</span>
             </div>
           </div>
 

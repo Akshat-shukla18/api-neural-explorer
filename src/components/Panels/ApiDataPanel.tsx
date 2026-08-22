@@ -58,7 +58,7 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
         isLight ? 'bg-white border-slate-200' : 'bg-[#0d121d] border-[#1a2234]'
       }`}>
         <div className={`flex items-center gap-2 font-semibold uppercase tracking-wider ${
-          isLight ? 'text-slate-900' : 'text-emerald-400'
+          isLight ? 'text-slate-900' : 'text-sky-400'
         }`}>
           <FileText className="w-4 h-4" />
           <span>API RESPONSE</span>
@@ -71,7 +71,7 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
               : 'bg-[#131b2c] hover:bg-[#1c2840] border-[#1e2638] text-slate-300'
           }`}
         >
-          {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+          {copied ? <Check className="w-3 h-3 text-sky-500" /> : <Copy className="w-3 h-3" />}
           <span>{copied ? 'COPIED' : 'COPY JSON'}</span>
         </button>
       </div>
@@ -85,8 +85,8 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
         }`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${isLight ? 'bg-slate-900' : 'bg-emerald-400'}`} />
-              <span className={`font-bold ${isLight ? 'text-slate-900' : 'text-emerald-400'}`}>{apiData.status} {apiData.statusText}</span>
+              <span className={`w-2 h-2 rounded-full ${isLight ? 'bg-slate-900' : 'bg-sky-400'}`} />
+              <span className={`font-bold ${isLight ? 'text-slate-900' : 'text-sky-400'}`}>{apiData.status} {apiData.statusText}</span>
             </div>
             <span className={isLight ? 'text-slate-500 text-[11px]' : 'text-slate-400 text-[11px]'}>{apiData.responseTimeMs} ms</span>
           </div>
@@ -96,7 +96,7 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
           }`}>
             <div className="truncate">
               <span className="opacity-70">Endpoint: </span>
-              <span className={`font-semibold ${isLight ? 'text-slate-900' : 'text-emerald-300'}`}>{apiData.url}</span>
+              <span className={`font-semibold ${isLight ? 'text-slate-900' : 'text-sky-300'}`}>{apiData.url}</span>
             </div>
             <div className="flex justify-between">
               <div>
@@ -142,7 +142,7 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
                         isHighlighted 
                           ? isLight 
                             ? 'bg-slate-300 border border-slate-900 text-slate-900 font-bold'
-                            : 'bg-emerald-950/80 border border-emerald-500/80 text-emerald-200 shadow-[0_0_12px_rgba(16,185,129,0.3)]' 
+                            : 'bg-sky-950/80 border border-sky-500/80 text-sky-200 shadow-[0_0_12px_rgba(56,189,248,0.3)]' 
                           : isLight ? 'hover:bg-slate-200' : 'hover:bg-[#0d121d]'
                       }`}
                     >
@@ -165,7 +165,7 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
           isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#0d121d] border-[#1e2638]'
         }`}>
           <span className={`font-bold uppercase tracking-wider text-[11px] block ${
-            isLight ? 'text-slate-900' : 'text-emerald-400'
+            isLight ? 'text-slate-900' : 'text-sky-400'
           }`}>
             DATA PROFILE
           </span>
@@ -191,7 +191,7 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
             isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#07090e] border-[#161f30]'
           }`}>
             <span className="opacity-70">Data Size</span>
-            <span className={`font-bold ${isLight ? 'text-slate-900' : 'text-emerald-400'}`}>{(apiData.dataSizeBytes / 1024).toFixed(1)} KB</span>
+            <span className={`font-bold ${isLight ? 'text-slate-900' : 'text-sky-400'}`}>{(apiData.dataSizeBytes / 1024).toFixed(1)} KB</span>
           </div>
         </div>
 
@@ -203,7 +203,7 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
             <button
               onClick={() => setIsNlpOpen(!isNlpOpen)}
               className={`w-full px-3 py-2 flex items-center justify-between text-[11px] font-bold ${
-                isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-900' : 'bg-[#101726] hover:bg-[#151f33] text-emerald-400'
+                isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-900' : 'bg-[#101726] hover:bg-[#151f33] text-sky-400'
               }`}
             >
               <div className="flex items-center gap-1.5">
@@ -231,7 +231,7 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
                       <span key={idx} className={`px-1.5 py-0.5 rounded border text-[10px] ${
                         isLight 
                           ? 'bg-slate-200 border-slate-300 text-slate-800' 
-                          : 'bg-emerald-950/60 border-emerald-800/60 text-emerald-300'
+                          : 'bg-sky-950/60 border-sky-800/60 text-sky-300'
                       }`}>
                         {t}
                       </span>
@@ -258,7 +258,7 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
                   isLight ? 'border-slate-200 text-slate-700' : 'border-[#182030] text-slate-400'
                 }`}>
                   <span>Created Chunks:</span>
-                  <span className={`font-bold ${isLight ? 'text-slate-900' : 'text-emerald-400'}`}>{nlpAnalysis.chunksCount}</span>
+                  <span className={`font-bold ${isLight ? 'text-slate-900' : 'text-sky-400'}`}>{nlpAnalysis.chunksCount}</span>
                 </div>
               </div>
             )}
@@ -273,7 +273,7 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
             <button
               onClick={() => setIsEmbeddingOpen(!isEmbeddingOpen)}
               className={`w-full px-3 py-2 flex items-center justify-between text-[11px] font-bold ${
-                isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-900' : 'bg-[#101726] hover:bg-[#151f33] text-emerald-400'
+                isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-900' : 'bg-[#101726] hover:bg-[#151f33] text-sky-400'
               }`}
             >
               <div className="flex items-center gap-1.5">
@@ -304,7 +304,7 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
                         key={idx}
                         style={{ height: `${val * 100}%` }}
                         className={`w-full rounded-t-xs opacity-80 hover:opacity-100 transition-opacity ${
-                          isLight ? 'bg-slate-800' : 'bg-gradient-to-t from-emerald-600 to-emerald-400'
+                          isLight ? 'bg-slate-800' : 'bg-gradient-to-t from-sky-600 to-sky-400'
                         }`}
                         title={`Dim bucket #${idx + 1}: ${val}`}
                       />

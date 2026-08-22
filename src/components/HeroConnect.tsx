@@ -39,9 +39,9 @@ export const HeroConnect: React.FC<HeroConnectProps> = ({ onConnect, isLoading, 
         <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-mono font-medium ${
           isLight 
             ? 'bg-white border-slate-300 text-slate-800 shadow-sm'
-            : 'bg-[#0d121d] border-emerald-500/40 text-emerald-400'
+            : 'bg-[#0d121d] border-sky-500/40 text-sky-400'
         }`}>
-          <Zap className={`w-3.5 h-3.5 animate-pulse ${isLight ? 'text-slate-900' : 'text-emerald-400'}`} />
+          <Zap className={`w-3.5 h-3.5 animate-pulse ${isLight ? 'text-slate-900' : 'text-sky-400'}`} />
           <span>REAL-TIME API → NLP → RAG → MCP OBSERVABILITY ENGINE</span>
         </div>
 
@@ -51,7 +51,7 @@ export const HeroConnect: React.FC<HeroConnectProps> = ({ onConnect, isLoading, 
             Connect an API. <br />
             <span className={isLight 
               ? 'bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 bg-clip-text text-transparent' 
-              : 'bg-gradient-to-r from-emerald-400 via-white to-emerald-400 bg-clip-text text-transparent'
+              : 'bg-gradient-to-r from-sky-400 via-white to-sky-400 bg-clip-text text-transparent'
             }>
               Watch intelligence flow through it.
             </span>
@@ -68,10 +68,10 @@ export const HeroConnect: React.FC<HeroConnectProps> = ({ onConnect, isLoading, 
           <div className={`relative flex items-center rounded-xl border transition-all p-1.5 ${
             isLight
               ? 'bg-white border-slate-300 focus-within:border-slate-900 shadow-md'
-              : 'bg-[#0d121d] border-[#232d42] focus-within:border-emerald-500/80 focus-within:shadow-[0_0_24px_rgba(16,185,129,0.2)]'
+              : 'bg-[#0d121d] border-[#232d42] focus-within:border-sky-500/80 focus-within:shadow-[0_0_24px_rgba(56,189,248,0.2)]'
           }`}>
             <div className="pl-3.5 flex items-center gap-2">
-              <Network className={`w-5 h-5 ${isLight ? 'text-slate-800' : 'text-emerald-400'}`} />
+              <Network className={`w-5 h-5 ${isLight ? 'text-slate-800' : 'text-sky-400'}`} />
             </div>
             <input
               type="text"
@@ -89,7 +89,7 @@ export const HeroConnect: React.FC<HeroConnectProps> = ({ onConnect, isLoading, 
               className={`px-6 py-3 rounded-lg font-mono text-xs font-semibold uppercase tracking-wider flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0 ${
                 isLight
                   ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-md'
-                  : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-[0_0_16px_rgba(16,185,129,0.4)]'
+                  : 'bg-sky-500 hover:bg-sky-400 text-slate-950 shadow-[0_0_16px_rgba(56,189,248,0.4)]'
               }`}
             >
               {isLoading ? (
@@ -111,7 +111,7 @@ export const HeroConnect: React.FC<HeroConnectProps> = ({ onConnect, isLoading, 
           <div className={`flex items-center justify-center gap-2 text-xs font-mono ${
             isLight ? 'text-slate-500' : 'text-slate-400'
           }`}>
-            <ShieldCheck className={`w-3.5 h-3.5 ${isLight ? 'text-slate-800' : 'text-emerald-400'}`} />
+            <ShieldCheck className={`w-3.5 h-3.5 ${isLight ? 'text-slate-800' : 'text-sky-400'}`} />
             <span>Supports JSON REST APIs (Public or Sample Datasets)</span>
           </div>
         </form>
@@ -133,13 +133,13 @@ export const HeroConnect: React.FC<HeroConnectProps> = ({ onConnect, isLoading, 
                 className={`p-3.5 rounded-lg border text-left transition-all group flex flex-col justify-between ${
                   isLight
                     ? 'bg-white hover:bg-slate-100 border-slate-300 hover:border-slate-500 text-slate-900 shadow-sm'
-                    : 'bg-[#0d121d] hover:bg-[#131b2c] border-[#1e2638] hover:border-emerald-500/40 text-slate-100'
+                    : 'bg-[#0d121d] hover:bg-[#131b2c] border-[#1e2638] hover:border-sky-500/40 text-slate-100'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <span className={`font-mono text-xs font-semibold ${
-                      isLight ? 'text-slate-900' : 'text-emerald-400'
+                      isLight ? 'text-slate-900' : 'text-sky-400'
                     }`}>
                       {sample.name}
                     </span>
@@ -152,7 +152,7 @@ export const HeroConnect: React.FC<HeroConnectProps> = ({ onConnect, isLoading, 
                   </p>
                 </div>
                 <div className={`mt-3 flex items-center gap-1 font-mono text-[10px] ${
-                  isLight ? 'text-slate-500 group-hover:text-slate-900' : 'text-slate-500 group-hover:text-emerald-300'
+                  isLight ? 'text-slate-500 group-hover:text-slate-900' : 'text-slate-500 group-hover:text-sky-300'
                 }`}>
                   <span>LOAD DATA</span>
                   <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
@@ -167,16 +167,16 @@ export const HeroConnect: React.FC<HeroConnectProps> = ({ onConnect, isLoading, 
           isLight ? 'border-slate-200' : 'border-[#1a2234]'
         }`}>
           <div className={`p-3 rounded-lg border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0d14] border-[#182030]'}`}>
-            <div className={`font-mono text-xs font-semibold flex items-center gap-1.5 mb-1 ${isLight ? 'text-slate-900' : 'text-emerald-400'}`}>
+            <div className={`font-mono text-xs font-semibold flex items-center gap-1.5 mb-1 ${isLight ? 'text-slate-900' : 'text-sky-400'}`}>
               <Network className="w-3.5 h-3.5" /> 1. INGESTION
             </div>
-            <p className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Live JSON profiling & parsing</p>
+            <p className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Live JSON profiling &amp; parsing</p>
           </div>
           <div className={`p-3 rounded-lg border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0d14] border-[#182030]'}`}>
             <div className={`font-mono text-xs font-semibold flex items-center gap-1.5 mb-1 ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
-              <Cpu className="w-3.5 h-3.5" /> 2. NLP & CHUNKS
+              <Cpu className="w-3.5 h-3.5" /> 2. NLP &amp; CHUNKS
             </div>
-            <p className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Tokens & stopword filtering</p>
+            <p className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Tokens &amp; stopword filtering</p>
           </div>
           <div className={`p-3 rounded-lg border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0d14] border-[#182030]'}`}>
             <div className={`font-mono text-xs font-semibold flex items-center gap-1.5 mb-1 ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
@@ -185,10 +185,10 @@ export const HeroConnect: React.FC<HeroConnectProps> = ({ onConnect, isLoading, 
             <p className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>384-d vector embeddings</p>
           </div>
           <div className={`p-3 rounded-lg border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0d14] border-[#182030]'}`}>
-            <div className={`font-mono text-xs font-semibold flex items-center gap-1.5 mb-1 ${isLight ? 'text-slate-900' : 'text-emerald-400'}`}>
-              <Zap className="w-3.5 h-3.5" /> 4. MCP & RAG
+            <div className={`font-mono text-xs font-semibold flex items-center gap-1.5 mb-1 ${isLight ? 'text-slate-900' : 'text-sky-400'}`}>
+              <Zap className="w-3.5 h-3.5" /> 4. MCP &amp; RAG
             </div>
-            <p className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>MCP tool calls & LLM search</p>
+            <p className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>MCP tool calls &amp; LLM search</p>
           </div>
         </div>
 
