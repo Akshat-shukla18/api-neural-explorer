@@ -14,8 +14,6 @@
 Instead of treating AI retrieval as a black box, API Neural Explorer visually demonstrates the complete end-to-end data pipeline: **API Ingestion → JSON AST Parsing → NLP Preprocessing → Tokenization → Chunking → Dense Embeddings → Vector Indexing → Model Context Protocol (MCP) Tool Calls → RAG Retrieval → Grounded LLM Response.**
 
 ---
-<img width="953" height="443" alt="image" src="https://github.com/user-attachments/assets/ee3c3239-c4bf-41f4-93f2-80e8757e7c53" />
-
 
 ## 🎨 Dual Theme Identity
 
@@ -37,8 +35,6 @@ LLM RESPONSE ◄── RAG RETRIEVAL ◄── MCP SERVER ◄── VECTOR DB �
 ```
 
 ---
-<img width="959" height="437" alt="image" src="https://github.com/user-attachments/assets/818d8724-d914-4053-93a6-8e766e55e983" />
-
 
 ### Stage 1: API Ingestion 🌐
 - **What Happens**: The user enters any public JSON API URL (or selects a sample dataset like *Products API*, *Users API*, or *Transactions API*). The application executes an HTTP request, tracks network latency, validates response status codes, and profiles payload metrics.
@@ -47,7 +43,6 @@ LLM RESPONSE ◄── RAG RETRIEVAL ◄── MCP SERVER ◄── VECTOR DB �
   - **Telemetry Output**: `200 OK` in `180 ms` | Payload Size: `42.5 KB` | Total Records: `8`.
 
 ---
-
 
 ### Stage 2: JSON Parser 📄
 - **What Happens**: Reads raw JSON strings, parses the Abstract Syntax Tree (AST), counts root fields, identifies nested structures, and calculates null value ratios.
@@ -82,7 +77,6 @@ LLM RESPONSE ◄── RAG RETRIEVAL ◄── MCP SERVER ◄── VECTOR DB �
   - **Lemmatized Output**: `["run", "shoe", "design"]`
 
 ---
-<img width="618" height="281" alt="image" src="https://github.com/user-attachments/assets/fed27fa4-f1c9-44ee-9782-591fc7ca05e1" />
 
 ### Stage 5: Chunker 📦
 - **What Happens**: Divides whole JSON records into discrete text chunks using a sliding window strategy, attaching structural metadata (record IDs, prices, categories) to each chunk.
@@ -96,8 +90,6 @@ LLM RESPONSE ◄── RAG RETRIEVAL ◄── MCP SERVER ◄── VECTOR DB �
 - **Concrete Example**:
   - **Vector Output (384 Dimensions)**: `[0.182, -0.092, 0.441, 0.029, 0.812, ...]`
   - **Waveform Buckets**: High intensity in buckets #4, #12, and #28 representing shoe/footwear semantic clusters.
-
-<img width="458" height="278" alt="image" src="https://github.com/user-attachments/assets/70b7a058-cb71-435e-b74c-0a238222bd55" />
 
 ---
 
