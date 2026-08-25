@@ -295,7 +295,7 @@ export function App() {
           </div>
 
           {/* Right Side (AI Query Panel - Full Height) */}
-          <div className="md:w-1/4 flex-1 flex flex-col min-w-0 min-h-0 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-800">
+          <div className="w-[35vw] flex-shrink-0 flex flex-col min-w-0 min-h-0 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-800">
             <AiQueryPanel
               messages={messages}
               onSendMessage={handleSendMessage}
