@@ -133,7 +133,8 @@ export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToo
           edges={edges}
           nodeTypes={nodeTypes}
           fitView
-          fitViewOptions={{ padding: 0.2 }}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.9 }}
+          fitViewOptions={{ padding: 0.05 }}
           minZoom={0.4}
           maxZoom={1.5}
           proOptions={{ hideAttribution: true }}
