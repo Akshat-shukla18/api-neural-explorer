@@ -263,8 +263,8 @@ export function App() {
           <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden md:w-3/4">
             
             {/* Top Section */}
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-8 overflow-hidden min-h-0">
-              <div className="md:col-span-3 h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col">
+            <div className="flex-none md:flex-1 grid grid-cols-1 md:grid-cols-8 overflow-hidden min-h-0">
+              <div className="md:col-span-3 h-[50vh] md:h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col border-b md:border-b-0 border-slate-200 dark:border-slate-800">
                 <ApiDataPanel
                   apiData={apiData}
                   nlpAnalysis={nlpAnalysis}
@@ -274,7 +274,7 @@ export function App() {
                 />
               </div>
 
-              <div className="md:col-span-5 h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col">
+              <div className="md:col-span-5 h-[60vh] md:h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col border-b md:border-b-0 border-slate-200 dark:border-slate-800">
                 <SystemGraph
                   stageStates={stageStates}
                   activeToolCall={activeToolCall}
@@ -284,7 +284,7 @@ export function App() {
             </div>
 
             {/* Bottom Section (Live Trace) */}
-            <div className="h-36 sm:h-40 shrink-0 min-w-0 max-w-full overflow-hidden">
+            <div className="h-64 md:h-36 sm:h-40 shrink-0 min-w-0 max-w-full overflow-hidden">
               <LiveTraceConsole
                 logs={traceLogs}
                 onClearLogs={() => setTraceLogs([])}
@@ -295,7 +295,7 @@ export function App() {
           </div>
 
           {/* Right Side (AI Query Panel - Full Height) */}
-          <div className="w-[35vw] flex-shrink-0 flex flex-col min-w-0 min-h-0 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-800">
+          <div className="md:w-1/4 h-[80vh] md:h-full flex-none md:flex-1 flex flex-col min-w-0 min-h-0 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-800">
             <AiQueryPanel
               messages={messages}
               onSendMessage={handleSendMessage}

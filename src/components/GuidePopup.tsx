@@ -92,7 +92,7 @@ export const GuidePopup: React.FC<GuidePopupProps> = ({ onSkip }) => {
 
   return (
     <div 
-      className={`fixed bottom-24 right-12 w-96 bg-white dark:bg-[#0a0a0a] rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.05)] z-50 flex flex-col ${isDragging ? '' : 'transition-opacity duration-500'} animate-in fade-in slide-in-from-bottom-8`}
+      className={`fixed bottom-4 left-4 right-4 md:left-auto md:bottom-24 md:right-12 md:w-96 bg-white dark:bg-[#0a0a0a] rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.05)] z-50 flex flex-col ${isDragging ? '' : 'transition-opacity duration-500'} animate-in fade-in slide-in-from-bottom-8`}
       style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
     >
       
