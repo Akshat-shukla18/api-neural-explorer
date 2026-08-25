@@ -62,7 +62,7 @@ export const AiQueryPanel: React.FC<AiQueryPanelProps> = ({
   };
 
   return (
-    <div className={`w-full h-full flex flex-col font-sans overflow-hidden text-xs transition-colors max-w-full min-w-0 min-h-0 ${
+    <div className={`w-full h-full flex-1 flex flex-col font-sans overflow-hidden text-xs transition-colors max-w-full min-w-0 min-h-0 ${
       isLight ? 'bg-slate-50 text-slate-900' : 'bg-[#090c13] text-slate-100'
     }`}>
       {/* Panel Header */}
@@ -149,63 +149,65 @@ export const AiQueryPanel: React.FC<AiQueryPanelProps> = ({
                   <span className="opacity-70 shrink-0">{msg.timestamp}</span>
                 </div>
 
-                <p className="leading-relaxed font-sans break-words select-text">
-                  {msg.text}
-                </p>
+                <div className="overflow-y-auto max-h-80 custom-scrollbar pr-2 space-y-3">
+                  <p className="leading-relaxed font-sans break-words select-text">
+                    {msg.text}
+                  </p>
 
-                {msg.mcpToolCall && (
-                  <div className={`p-2 rounded border font-mono text-[10px] flex items-center justify-between gap-2 ${
-                    isLight 
-                      ? 'bg-slate-100 border-slate-300 text-slate-900' 
-                      : 'bg-[#07090e] border-sky-900/60 text-sky-400'
-                  }`}>
-                    <div className="flex items-center gap-1.5 truncate">
-                      <Server className="w-3 h-3 shrink-0" />
-                      <span className="truncate">MCP TOOL: <strong className="truncate">{msg.mcpToolCall.tool}</strong></span>
+                  {msg.mcpToolCall && (
+                    <div className={`p-2 rounded border font-mono text-[10px] flex items-center justify-between gap-2 ${
+                      isLight 
+                        ? 'bg-slate-100 border-slate-300 text-slate-900' 
+                        : 'bg-[#07090e] border-sky-900/60 text-sky-400'
+                    }`}>
+                      <div className="flex items-center gap-1.5 truncate">
+                        <Server className="w-3 h-3 shrink-0" />
+                        <span className="truncate">MCP TOOL: <strong className="truncate">{msg.mcpToolCall.tool}</strong></span>
+                      </div>
+                      <span className="shrink-0">{msg.mcpToolCall.latencyMs} ms</span>
                     </div>
-                    <span className="shrink-0">{msg.mcpToolCall.latencyMs} ms</span>
-                  </div>
-                )}
+                  )}
 
-                {msg.sources && msg.sources.length > 0 && (
-                  <div className={`pt-2 border-t space-y-2 ${isLight ? 'border-slate-200' : 'border-[#182030]'}`}>
-                    <span className="font-mono text-[10px] font-bold opacity-70 tracking-wider uppercase block select-none">
-                      RETRIEVED SOURCES ({msg.sources.length})
-                    </span>
+                  {msg.sources && msg.sources.length > 0 && (
+                    <div className={`pt-2 border-t space-y-2 ${isLight ? 'border-slate-200' : 'border-[#182030]'}`}>
+                      <span className="font-mono text-[10px] font-bold opacity-70 tracking-wider uppercase block select-none">
+                        RETRIEVED SOURCES ({msg.sources.length})
+                      </span>
 
-                    <div className="grid grid-cols-1 gap-2 select-none">
-                      {msg.sources.map((src) => (
-                        <button
-                          key={src.id}
-                          onClick={() => onSelectSourceRecord?.(src.id)}
-                          className={`p-2 rounded border text-left font-mono text-[11px] transition-all group flex flex-col space-y-1 w-full max-w-full overflow-hidden ${
-                            isLight
-                              ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-900'
-                              : 'bg-[#05070a] hover:bg-[#101726] border-[#182030] text-slate-200'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between w-full gap-2">
-                            <span className="font-bold truncate">
-                              {src.name}
-                            </span>
-                            {src.price && (
-                              <span className={`font-bold shrink-0 ${isLight ? 'text-slate-900' : 'text-sky-400'}`}>
-                                ₹{src.price.toLocaleString()}
+                      <div className="grid grid-cols-1 gap-2 select-none">
+                        {msg.sources.map((src) => (
+                          <button
+                            key={src.id}
+                            onClick={() => onSelectSourceRecord?.(src.id)}
+                            className={`p-2 rounded border text-left font-mono text-[11px] transition-all group flex flex-col space-y-1 w-full max-w-full overflow-hidden ${
+                              isLight
+                                ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-900'
+                                : 'bg-[#05070a] hover:bg-[#101726] border-[#182030] text-slate-200'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between w-full gap-2">
+                              <span className="font-bold truncate">
+                                {src.name}
                               </span>
-                            )}
-                          </div>
-                          <p className="text-[10px] opacity-80 leading-tight line-clamp-2 break-all">
-                            {src.snippet}
-                          </p>
-                          <div className="flex items-center gap-1 text-[9px] opacity-70 pt-0.5">
-                            <span>HIGHLIGHT IN JSON</span>
-                            <ExternalLink className="w-2.5 h-2.5 shrink-0" />
-                          </div>
-                        </button>
-                      ))}
+                              {src.price && (
+                                <span className={`font-bold shrink-0 ${isLight ? 'text-slate-900' : 'text-sky-400'}`}>
+                                  ₹{src.price.toLocaleString()}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[10px] opacity-80 leading-tight line-clamp-2 break-all">
+                              {src.snippet}
+                            </p>
+                            <div className="flex items-center gap-1 text-[9px] opacity-70 pt-0.5">
+                              <span>HIGHLIGHT IN JSON</span>
+                              <ExternalLink className="w-2.5 h-2.5 shrink-0" />
+                            </div>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             )}
           </div>

@@ -236,7 +236,7 @@ export function App() {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans overflow-hidden transition-colors ${
+    <div className={`min-h-screen flex flex-col font-sans overflow-y-auto overflow-x-hidden transition-colors ${
       theme === 'light' ? 'bg-slate-50 text-slate-900' : 'bg-[#07090e] text-slate-100'
     }`}>
       <Navbar
@@ -257,48 +257,56 @@ export function App() {
       )}
 
       {(appState === 'PROCESSING' || appState === 'READY') && (
-        <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] max-h-[calc(100vh-3.5rem)] max-w-full overflow-hidden min-h-0">
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden min-h-0 h-[calc(100vh-13.5rem)] max-h-[calc(100vh-13.5rem)]">
+        <div className="flex-1 flex flex-col md:flex-row min-h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)] md:max-h-[calc(100vh-3.5rem)] max-w-full overflow-hidden min-h-0">
+          
+          {/* Left Side (API Data, System Graph, Live Trace) */}
+          <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden md:w-3/4">
             
-            <div className="md:col-span-3 h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col">
-              <ApiDataPanel
-                apiData={apiData}
-                nlpAnalysis={nlpAnalysis}
-                vectorEmbedding={vectorEmbedding}
-                highlightedRecordId={highlightedRecordId}
+            {/* Top Section */}
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-8 overflow-hidden min-h-0">
+              <div className="md:col-span-3 h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col">
+                <ApiDataPanel
+                  apiData={apiData}
+                  nlpAnalysis={nlpAnalysis}
+                  vectorEmbedding={vectorEmbedding}
+                  highlightedRecordId={highlightedRecordId}
+                  theme={theme}
+                />
+              </div>
+
+              <div className="md:col-span-5 h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col">
+                <SystemGraph
+                  stageStates={stageStates}
+                  activeToolCall={activeToolCall}
+                  theme={theme}
+                />
+              </div>
+            </div>
+
+            {/* Bottom Section (Live Trace) */}
+            <div className="h-36 sm:h-40 shrink-0 min-w-0 max-w-full overflow-hidden">
+              <LiveTraceConsole
+                logs={traceLogs}
+                onClearLogs={() => setTraceLogs([])}
                 theme={theme}
               />
             </div>
-
-            <div className="md:col-span-5 h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col">
-              <SystemGraph
-                stageStates={stageStates}
-                activeToolCall={activeToolCall}
-                theme={theme}
-              />
-            </div>
-
-            <div className="md:col-span-4 h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col">
-              <AiQueryPanel
-                messages={messages}
-                onSendMessage={handleSendMessage}
-                isProcessing={isQueryProcessing}
-                activeProcessingStep={activeProcessingStep}
-                activeRagChunks={activeRagChunks}
-                onSelectSourceRecord={handleSelectSourceRecord}
-                theme={theme}
-              />
-            </div>
-
+            
           </div>
 
-          <div className="h-36 sm:h-40 shrink-0 min-w-0 max-w-full overflow-hidden">
-            <LiveTraceConsole
-              logs={traceLogs}
-              onClearLogs={() => setTraceLogs([])}
+          {/* Right Side (AI Query Panel - Full Height) */}
+          <div className="md:w-1/4 flex-1 flex flex-col min-w-0 min-h-0 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-800">
+            <AiQueryPanel
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              isProcessing={isQueryProcessing}
+              activeProcessingStep={activeProcessingStep}
+              activeRagChunks={activeRagChunks}
+              onSelectSourceRecord={handleSelectSourceRecord}
               theme={theme}
             />
           </div>
+
         </div>
       )}
 

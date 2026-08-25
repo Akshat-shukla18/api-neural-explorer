@@ -40,13 +40,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="font-semibold tracking-wider uppercase font-sans text-[13px]">
               API Neural Explorer
             </span>
-            <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-medium border ${
+            {/* <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-medium border ${
               isLight
                 ? 'bg-slate-100 text-slate-800 border-slate-300'
                 : 'bg-sky-950 text-sky-400 border-sky-800/60'
             }`}>
               {isLight ? 'DAY MODE' : 'NIGHT MODE'}
-            </span>
+            </span> */}
           </div>
           <p className={`text-[10px] font-mono leading-none mt-0.5 hidden sm:block ${
             isLight ? 'text-slate-500' : 'text-slate-400'
@@ -57,23 +57,23 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Center: System Status Indicator */}
-      <div className={`hidden md:flex items-center gap-2 px-3 py-1 rounded-full border ${
+      {/* <div className={`hidden md:flex items-center gap-2 px-3 py-1 rounded-full border ${
         isLight
           ? 'bg-slate-100 border-slate-300 text-slate-800'
           : 'bg-[#111622] border-[#232d42] text-sky-400'
-      }`}>
-        <span className="relative flex h-2 w-2">
+      }`}> */}
+        {/* <span className="relative flex h-2 w-2">
           <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
             isLight ? 'bg-slate-700' : 'bg-sky-400'
-          }`} />
-          <span className={`relative inline-flex rounded-full h-2 w-2 ${
+          }`} /> */}
+          {/* <span className={`relative inline-flex rounded-full h-2 w-2 ${
             isLight ? 'bg-slate-900' : 'bg-sky-500'
           }`} />
-        </span>
-        <span className="font-mono text-[11px] tracking-wide font-medium uppercase">
+        </span> */}
+        {/* <span className="font-mono text-[11px] tracking-wide font-medium uppercase">
           SYSTEM ONLINE
-        </span>
-      </div>
+        </span> */}
+      {/* </div> */}
 
       {/* Right Controls */}
       <div className="flex items-center gap-2 sm:gap-3">
