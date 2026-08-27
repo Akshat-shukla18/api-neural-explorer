@@ -21,7 +21,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isLight = theme === 'light';
 
   return (
-    <header className={`h-14 border-b px-4 flex items-center justify-between text-xs select-none sticky top-0 z-50 transition-colors ${
+   <header className={`h-16 shrink-0 border-b px-4 flex items-center justify-between text-xs select-none sticky top-0 z-50 transition-colors ${
       isLight 
         ? 'bg-white/90 backdrop-blur border-slate-200 text-slate-900' 
         : 'bg-[#0a0d14]/90 backdrop-blur border-[#1e2638] text-slate-100'

@@ -236,8 +236,10 @@ export function App() {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans overflow-y-auto overflow-x-hidden transition-colors ${
-      theme === 'light' ? 'bg-slate-50 text-slate-900' : 'bg-[#07090e] text-slate-100'
+    <div className={`h-screen flex flex-col font-sans overflow-hidden transition-colors ${
+    theme === 'light'
+      ? 'bg-slate-50 text-slate-900'
+      : 'bg-[#07090e] text-slate-100'
     }`}>
       <Navbar
         apiStatus={appState === 'READY' ? 'ONLINE' : appState === 'PROCESSING' ? 'STANDBY' : 'ERROR'}
@@ -257,10 +259,10 @@ export function App() {
       )}
 
       {(appState === 'PROCESSING' || appState === 'READY') && (
-        <div className="flex-1 flex flex-col md:flex-row min-h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)] md:max-h-[calc(100vh-3.5rem)] max-w-full overflow-hidden min-h-0">
+       <div className="flex-1 flex flex-col md:flex-row min-h-0 md:h-[calc(100vh-4rem)] max-w-full overflow-hidden">
           
           {/* Left Side (API Data, System Graph, Live Trace) */}
-          <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden md:w-3/4">
+          <div className="flex-1 flex flex-col min-w-0 min-h-0  overflow-hidden md:w-3/4">
             
             {/* Top Section */}
             <div className="flex-none md:flex-1 grid grid-cols-1 md:grid-cols-8 overflow-hidden min-h-0">
