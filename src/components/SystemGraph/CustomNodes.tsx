@@ -196,11 +196,15 @@ export const PipelineNodeComponent = ({ data }: { data: ExtendedNodeData }) => {
         </div>
       )}
 
-      <Handle 
-        type="source" 
-        position={Position.Bottom} 
-        className={isLight ? '!bg-slate-400 !w-2.5 !h-2.5 !border-2 !border-white' : '!bg-[#2d3a54] !w-2.5 !h-2.5 !border-2 !border-[#0b0e17]'} 
-      />
+      <Handle
+  type="source"
+  position={Position.Bottom}
+  className={
+    isLight
+      ? '!bg-slate-400 !w-2.5 !h-2.5 !border-2 !border-white'
+      : '!bg-sky-500 !w-2.5 !h-2.5 !border-2 !border-[#0b0e17]'
+  }
+/>
     </div>
   );
 };

@@ -23,7 +23,7 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
   nlpAnalysis,
   vectorEmbedding,
   highlightedRecordId,
-  theme = 'dark'
+  theme = 'light'
 }) => {
   const [copied, setCopied] = useState(false);
   const [isNlpOpen, setIsNlpOpen] = useState(true);
@@ -54,18 +54,18 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
       isLight ? 'bg-slate-50 border-slate-200 text-slate-900' : 'bg-[#090c13] border-[#1a2234] text-slate-100'
     }`}>
       {/* Panel Header */}
-      <div className={`h-10 border-b px-4 flex items-center justify-between shrink-0 ${
+      <div className={`h-10 border-b px-3 sm:px-4 flex items-center justify-between shrink-0 ${
         isLight ? 'bg-white border-slate-200' : 'bg-[#0d121d] border-[#1a2234]'
       }`}>
-        <div className={`flex items-center gap-2 font-semibold uppercase tracking-wider ${
+        <div className={`flex items-center gap-2 font-semibold uppercase tracking-wider text-xs ${
           isLight ? 'text-slate-900' : 'text-sky-400'
         }`}>
-          <FileText className="w-4 h-4" />
+          <FileText className="w-4 h-4 shrink-0" />
           <span>API RESPONSE</span>
         </div>
         <button
           onClick={handleCopyJson}
-          className={`flex items-center gap-1 text-[11px] px-2 py-0.5 rounded border transition-colors ${
+          className={`flex items-center gap-1 text-[10px] sm:text-[11px] px-2 py-0.5 rounded border transition-colors ${
             isLight
               ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800'
               : 'bg-[#131b2c] hover:bg-[#1c2840] border-[#1e2638] text-slate-300'
@@ -77,10 +77,10 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
       </div>
 
       {/* Content Scrollable Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 custom-scrollbar">
         
         {/* Telemetry Card */}
-        <div className={`p-3 rounded-lg border space-y-2 ${
+        <div className={`p-2.5 sm:p-3 rounded-lg border space-y-2 ${
           isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#0d121d] border-[#1e2638]'
         }`}>
           <div className="flex items-center justify-between">

@@ -35,7 +35,7 @@ export const AiQueryPanel: React.FC<AiQueryPanelProps> = ({
   activeProcessingStep,
   activeRagChunks,
   onSelectSourceRecord,
-  theme = 'dark'
+  theme = 'light'
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [isRagDrawerOpen, setIsRagDrawerOpen] = useState(true);
@@ -65,7 +65,7 @@ export const AiQueryPanel: React.FC<AiQueryPanelProps> = ({
   };
 
   return (
-  <div className={`w-full h-screen min-h-0 mt-3 flex flex-col font-sans select-none overflow-hidden text-xs transition-colors ${
+  <div className={`w-full h-full min-h-0 flex flex-col font-sans select-none overflow-hidden text-xs transition-colors ${
   isLight ? 'bg-slate-50 text-slate-900' : 'bg-[#090c13] text-slate-100'
 }`}>
       {/* Header */}
@@ -78,7 +78,7 @@ export const AiQueryPanel: React.FC<AiQueryPanelProps> = ({
           <Sparkles className="w-4 h-4" />
           <span>QUERY YOUR API</span>
         </div>
-        <span className="font-mono text-[10px] opacity-70">RAG & MCP POWERED</span>
+        <span className="font-mono text-[10px] opacity-70 hidden sm:inline">RAG & MCP POWERED</span>
       </div>
 
       <div className={`px-4 py-2 border-b font-mono text-[11px] shrink-0 ${
@@ -88,7 +88,7 @@ export const AiQueryPanel: React.FC<AiQueryPanelProps> = ({
       </div>
 
       {/* Messages */}
-     <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+     <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 custom-scrollbar">
         {messages.length <= 1 && (
           <div className={`p-3 rounded-lg border space-y-2 ${
             isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#0d121d] border-[#1e2638]'
@@ -96,19 +96,19 @@ export const AiQueryPanel: React.FC<AiQueryPanelProps> = ({
             <span className="font-mono text-[10px] opacity-70 uppercase tracking-wider block">
               SUGGESTED QUERIES:
             </span>
-            <div className="flex flex-col gap-1.5 ">
+            <div className="flex flex-col gap-1.5">
               {SAMPLE_QUESTIONS.map((q, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSelectPreset(q)}
-                  className={`p-2 rounded border text-left font-mono text-[11px] transition-all flex items-center justify-between group ${
+                  className={`p-2 rounded border text-left font-mono text-[11px] transition-all flex items-center justify-between gap-2 group ${
                     isLight 
                       ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800' 
                       : 'bg-[#07090e] hover:bg-[#131b2c] border-[#182030] text-slate-300'
                   }`}
                 >
-                  <span>{q}</span>
-                  <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 mt-8 transition-transform opacity-70" />
+                  <span className="leading-snug">{q}</span>
+                  <ArrowRight className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform opacity-70" />
                 </button>
               ))}
             </div>

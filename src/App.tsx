@@ -7,6 +7,7 @@ import { AiQueryPanel } from './components/Panels/AiQueryPanel';
 import { LiveTraceConsole } from './components/Panels/LiveTraceConsole';
 import { ErrorStateModal } from './components/Modals/ErrorStateModal';
 import { SettingsModal } from './components/Modals/SettingsModal';
+import { FileText, Cpu, Terminal, Sparkles, LayoutGrid, Layers } from 'lucide-react';
 
 import type { 
   AppState, 
@@ -39,7 +40,7 @@ const INITIAL_STAGES: Record<StageId, PipelineNodeData> = {
 };
 
 export function App() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [appState, setAppState] = useState<AppState>('DISCONNECTED');
   const [stageStates, setStageStates] = useState<Record<StageId, PipelineNodeData>>(INITIAL_STAGES);
   const [traceLogs, setTraceLogs] = useState<TraceLog[]>([]);
@@ -55,6 +56,9 @@ export function App() {
   const [activeProcessingStep, setActiveProcessingStep] = useState<string | undefined>(undefined);
   const [activeToolCall, setActiveToolCall] = useState<string | undefined>(undefined);
   const [activeRagChunks, setActiveRagChunks] = useState<RagChunk[]>([]);
+
+  const [mobileTab, setMobileTab] = useState<'api' | 'graph' | 'trace' | 'chat'>('api');
+  const [mobileViewMode, setMobileViewMode] = useState<'slide' | 'stack'>('slide');
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -259,54 +263,277 @@ export function App() {
       )}
 
       {(appState === 'PROCESSING' || appState === 'READY') && (
-       <div className="flex-1 flex flex-col md:flex-row min-h-0 md:h-[calc(100vh-4rem)] max-w-full overflow-hidden">
+        <div className="flex-1 flex flex-col min-h-0 max-w-full overflow-hidden">
           
-          {/* Left Side (API Data, System Graph, Live Trace) */}
-          <div className="flex-1 flex flex-col min-w-0 min-h-0  overflow-hidden md:w-3/4">
-            
-            {/* Top Section */}
-            <div className="flex-none md:flex-1 grid grid-cols-1 md:grid-cols-8 overflow-hidden min-h-0">
-              <div className="md:col-span-3 h-[50vh] md:h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col border-b md:border-b-0 border-slate-200 dark:border-slate-800">
-                <ApiDataPanel
-                  apiData={apiData}
-                  nlpAnalysis={nlpAnalysis}
-                  vectorEmbedding={vectorEmbedding}
-                  highlightedRecordId={highlightedRecordId}
-                  theme={theme}
-                />
-              </div>
+          {/* Mobile Navigation Header (< md) */}
+          <div className={`md:hidden flex items-center justify-between border-b px-2 py-1.5 shrink-0 z-40 ${
+            theme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0d121d] border-[#1e2638]'
+          }`}>
+            {/* Scrollable Tab Pills */}
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 max-w-[calc(100%-48px)]">
+              <button
+                onClick={() => setMobileTab('api')}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono text-[11px] font-semibold whitespace-nowrap transition-all ${
+                  mobileTab === 'api'
+                    ? theme === 'light'
+                      ? 'bg-slate-900 text-white shadow-sm'
+                      : 'bg-sky-500 text-slate-950 font-bold shadow-[0_0_12px_rgba(56,189,248,0.3)]'
+                    : theme === 'light'
+                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      : 'bg-[#131b2c] text-slate-300 hover:bg-[#1a253c]'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5 shrink-0" />
+                <span>API Data</span>
+                {apiData && (
+                  <span className={`text-[9px] px-1 rounded ${
+                    mobileTab === 'api' 
+                      ? theme === 'light' ? 'bg-slate-700 text-white' : 'bg-sky-900 text-sky-200'
+                      : theme === 'light' ? 'bg-slate-200 text-slate-700' : 'bg-[#1e2a42] text-slate-400'
+                  }`}>
+                    {apiData.recordsCount}
+                  </span>
+                )}
+              </button>
 
-              <div className="md:col-span-5 h-[60vh] md:h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col border-b md:border-b-0 border-slate-200 dark:border-slate-800">
-                <SystemGraph
-                  stageStates={stageStates}
-                  activeToolCall={activeToolCall}
-                  theme={theme}
-                />
-              </div>
+              <button
+                onClick={() => setMobileTab('graph')}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono text-[11px] font-semibold whitespace-nowrap transition-all ${
+                  mobileTab === 'graph'
+                    ? theme === 'light'
+                      ? 'bg-slate-900 text-white shadow-sm'
+                      : 'bg-sky-500 text-slate-950 font-bold shadow-[0_0_12px_rgba(56,189,248,0.3)]'
+                    : theme === 'light'
+                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      : 'bg-[#131b2c] text-slate-300 hover:bg-[#1a253c]'
+                }`}
+              >
+                <Cpu className="w-3.5 h-3.5 shrink-0" />
+                <span>Pipeline</span>
+                {activeToolCall && (
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                )}
+              </button>
+
+              <button
+                onClick={() => setMobileTab('trace')}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono text-[11px] font-semibold whitespace-nowrap transition-all ${
+                  mobileTab === 'trace'
+                    ? theme === 'light'
+                      ? 'bg-slate-900 text-white shadow-sm'
+                      : 'bg-sky-500 text-slate-950 font-bold shadow-[0_0_12px_rgba(56,189,248,0.3)]'
+                    : theme === 'light'
+                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      : 'bg-[#131b2c] text-slate-300 hover:bg-[#1a253c]'
+                }`}
+              >
+                <Terminal className="w-3.5 h-3.5 shrink-0" />
+                <span>Trace</span>
+                <span className={`text-[9px] px-1 rounded ${
+                  mobileTab === 'trace'
+                    ? theme === 'light' ? 'bg-slate-700 text-white' : 'bg-sky-900 text-sky-200'
+                    : theme === 'light' ? 'bg-slate-200 text-slate-700' : 'bg-[#1e2a42] text-slate-400'
+                }`}>
+                  {traceLogs.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setMobileTab('chat')}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono text-[11px] font-semibold whitespace-nowrap transition-all ${
+                  mobileTab === 'chat'
+                    ? theme === 'light'
+                      ? 'bg-slate-900 text-white shadow-sm'
+                      : 'bg-emerald-500 text-slate-950 font-bold shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+                    : theme === 'light'
+                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      : 'bg-[#131b2c] text-slate-300 hover:bg-[#1a253c]'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                <span>AI Query</span>
+                {isQueryProcessing && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                )}
+              </button>
             </div>
 
-            {/* Bottom Section (Live Trace) */}
-            <div className="h-64 md:h-36 sm:h-40 shrink-0 min-w-0 max-w-full overflow-hidden">
-              <LiveTraceConsole
-                logs={traceLogs}
-                onClearLogs={() => setTraceLogs([])}
+            {/* View Mode Toggle: Slide Tabs vs All Sections Stacked */}
+            <button
+              onClick={() => setMobileViewMode(prev => prev === 'slide' ? 'stack' : 'slide')}
+              className={`p-1.5 rounded-lg border text-[10px] font-mono flex items-center gap-1 shrink-0 ${
+                mobileViewMode === 'stack'
+                  ? theme === 'light'
+                    ? 'bg-slate-200 border-slate-400 text-slate-900'
+                    : 'bg-sky-950 border-sky-500 text-sky-300'
+                  : theme === 'light'
+                    ? 'bg-slate-100 border-slate-300 text-slate-600'
+                    : 'bg-[#131b2c] border-[#1e2638] text-slate-400'
+              }`}
+              title={mobileViewMode === 'slide' ? 'Switch to All Sections Scroll View' : 'Switch to Focused Tab Slide View'}
+            >
+              {mobileViewMode === 'slide' ? <Layers className="w-3.5 h-3.5" /> : <LayoutGrid className="w-3.5 h-3.5" />}
+              <span className="hidden xs:inline">{mobileViewMode === 'slide' ? 'Slide' : 'All'}</span>
+            </button>
+          </div>
+
+          {/* Mobile Content Display (< md) */}
+          <div className="md:hidden flex-1 min-h-0 flex flex-col overflow-hidden">
+            {mobileViewMode === 'slide' ? (
+              // Focused Single Tab View (Full Mobile Viewport Height, crisp and uncluttered)
+              <div className="flex-1 min-h-0 h-full w-full overflow-hidden flex flex-col">
+                {mobileTab === 'api' && (
+                  <div className="flex-1 min-h-0 h-full overflow-hidden flex flex-col">
+                    <ApiDataPanel
+                      apiData={apiData}
+                      nlpAnalysis={nlpAnalysis}
+                      vectorEmbedding={vectorEmbedding}
+                      highlightedRecordId={highlightedRecordId}
+                      theme={theme}
+                    />
+                  </div>
+                )}
+                {mobileTab === 'graph' && (
+                  <div className="flex-1 min-h-0 h-full overflow-hidden flex flex-col">
+                    <SystemGraph
+                      stageStates={stageStates}
+                      activeToolCall={activeToolCall}
+                      theme={theme}
+                    />
+                  </div>
+                )}
+                {mobileTab === 'trace' && (
+                  <div className="flex-1 min-h-0 h-full overflow-hidden flex flex-col">
+                    <LiveTraceConsole
+                      logs={traceLogs}
+                      onClearLogs={() => setTraceLogs([])}
+                      theme={theme}
+                    />
+                  </div>
+                )}
+                {mobileTab === 'chat' && (
+                  <div className="flex-1 min-h-0 h-full overflow-hidden flex flex-col">
+                    <AiQueryPanel
+                      messages={messages}
+                      onSendMessage={handleSendMessage}
+                      isProcessing={isQueryProcessing}
+                      activeProcessingStep={activeProcessingStep}
+                      activeRagChunks={activeRagChunks}
+                      onSelectSourceRecord={handleSelectSourceRecord}
+                      theme={theme}
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              // Continuous All-Sections Stacked View with Sliding/Scroll (clearly visible blocks)
+              <div className="flex-1 overflow-y-auto min-h-0 space-y-4 p-2 sm:p-3 custom-scrollbar">
+                
+                {/* 1. API Data Block */}
+                <div className={`rounded-xl border overflow-hidden shadow-sm h-[480px] flex flex-col ${
+                  theme === 'light' ? 'bg-white border-slate-200' : 'bg-[#090c13] border-[#1e2638]'
+                }`}>
+                  <ApiDataPanel
+                    apiData={apiData}
+                    nlpAnalysis={nlpAnalysis}
+                    vectorEmbedding={vectorEmbedding}
+                    highlightedRecordId={highlightedRecordId}
+                    theme={theme}
+                  />
+                </div>
+
+                {/* 2. System Graph Block */}
+                <div className={`rounded-xl border overflow-hidden shadow-sm h-[520px] flex flex-col ${
+                  theme === 'light' ? 'bg-white border-slate-200' : 'bg-[#07090e] border-[#1e2638]'
+                }`}>
+                  <SystemGraph
+                    stageStates={stageStates}
+                    activeToolCall={activeToolCall}
+                    theme={theme}
+                  />
+                </div>
+
+                {/* 3. Live Trace Console Block */}
+                <div className={`rounded-xl border overflow-hidden shadow-sm h-[340px] flex flex-col ${
+                  theme === 'light' ? 'bg-slate-900 border-slate-700' : 'bg-[#05070a] border-[#1e2638]'
+                }`}>
+                  <LiveTraceConsole
+                    logs={traceLogs}
+                    onClearLogs={() => setTraceLogs([])}
+                    theme={theme}
+                  />
+                </div>
+
+                {/* 4. AI Query Chat Block */}
+                <div className={`rounded-xl border overflow-hidden shadow-sm h-[580px] flex flex-col ${
+                  theme === 'light' ? 'bg-white border-slate-200' : 'bg-[#090c13] border-[#1e2638]'
+                }`}>
+                  <AiQueryPanel
+                    messages={messages}
+                    onSendMessage={handleSendMessage}
+                    isProcessing={isQueryProcessing}
+                    activeProcessingStep={activeProcessingStep}
+                    activeRagChunks={activeRagChunks}
+                    onSelectSourceRecord={handleSelectSourceRecord}
+                    theme={theme}
+                  />
+                </div>
+
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Workstation Layout (md: and up) */}
+          <div className="hidden md:flex flex-1 flex-row min-h-0 md:h-[calc(100vh-4rem)] max-w-full overflow-hidden">
+            
+            {/* Left Side (API Data, System Graph, Live Trace) */}
+            <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden md:w-3/4">
+              
+              {/* Top Section */}
+              <div className="flex-1 grid grid-cols-8 overflow-hidden min-h-0">
+                <div className="col-span-3 h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col border-r border-slate-200 dark:border-slate-800">
+                  <ApiDataPanel
+                    apiData={apiData}
+                    nlpAnalysis={nlpAnalysis}
+                    vectorEmbedding={vectorEmbedding}
+                    highlightedRecordId={highlightedRecordId}
+                    theme={theme}
+                  />
+                </div>
+
+                <div className="col-span-5 h-full max-h-full overflow-hidden min-w-0 max-w-full min-h-0 flex flex-col">
+                  <SystemGraph
+                    stageStates={stageStates}
+                    activeToolCall={activeToolCall}
+                    theme={theme}
+                  />
+                </div>
+              </div>
+
+              {/* Bottom Section (Live Trace) */}
+              <div className="h-40 shrink-0 min-w-0 max-w-full overflow-hidden border-t border-slate-200 dark:border-slate-800">
+                <LiveTraceConsole
+                  logs={traceLogs}
+                  onClearLogs={() => setTraceLogs([])}
+                  theme={theme}
+                />
+              </div>
+              
+            </div>
+
+            {/* Right Side (AI Query Panel - Full Height) */}
+            <div className="w-1/4 h-full flex flex-col min-w-0 min-h-0 border-l border-slate-200 dark:border-slate-800">
+              <AiQueryPanel
+                messages={messages}
+                onSendMessage={handleSendMessage}
+                isProcessing={isQueryProcessing}
+                activeProcessingStep={activeProcessingStep}
+                activeRagChunks={activeRagChunks}
+                onSelectSourceRecord={handleSelectSourceRecord}
                 theme={theme}
               />
             </div>
-            
-          </div>
 
-          {/* Right Side (AI Query Panel - Full Height) */}
-          <div className="md:w-1/4 h-[80vh] md:h-full flex-none md:flex-1 flex flex-col min-w-0 min-h-0 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-800">
-            <AiQueryPanel
-              messages={messages}
-              onSendMessage={handleSendMessage}
-              isProcessing={isQueryProcessing}
-              activeProcessingStep={activeProcessingStep}
-              activeRagChunks={activeRagChunks}
-              onSelectSourceRecord={handleSelectSourceRecord}
-              theme={theme}
-            />
           </div>
 
         </div>

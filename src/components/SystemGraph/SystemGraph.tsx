@@ -31,7 +31,7 @@ const INITIAL_NODES_CONFIG: { id: StageId; label: string; category: PipelineNode
   { id: 'llm', label: 'LLM INFERENCE', category: 'llm', x: 250, y: 1280 }
 ];
 
-export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToolCall, theme = 'dark' }) => {
+export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToolCall, theme = 'light' }) => {
   const isLight = theme === 'light';
   const nodeTypes = useMemo(() => ({ pipelineNode: PipelineNodeComponent }), []);
 
@@ -97,46 +97,48 @@ export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToo
       isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#07090e] border-[#1a2234]'
     }`}>
       {/* Header Bar */}
-      <div className={`h-10 border-b px-4 flex items-center justify-between text-xs font-mono ${
+      <div className={`min-h-10 border-b px-3 sm:px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs font-mono ${
         isLight ? 'bg-white border-slate-200 text-slate-800' : 'bg-[#0d121d] border-[#1a2234] text-slate-200'
       }`}>
         <div className="flex items-center gap-2 font-semibold uppercase tracking-wider">
-          <Cpu className={`w-4 h-4 ${isLight ? 'text-slate-900' : 'text-sky-400'}`} />
-          <span>MCP / AI NEURAL PIPELINE</span>
+          <Cpu className={`w-4 h-4 shrink-0 ${isLight ? 'text-slate-900' : 'text-sky-400'}`} />
+          <span className="truncate">MCP / AI PIPELINE</span>
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-3 text-[11px]">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px]">
           <div className="flex items-center gap-1">
             <span className={`w-2 h-2 rounded-full animate-pulse ${isLight ? 'bg-slate-900' : 'bg-sky-400'}`} />
             <span>Active</span>
           </div>
           <div className="flex items-center gap-1">
             <span className={`w-2 h-2 rounded-full ${isLight ? 'bg-slate-700' : 'bg-sky-400'}`} />
-            <span>Complete</span>
+            <span>Done</span>
           </div>
           <div className="flex items-center gap-1">
             <span className={`w-2 h-2 rounded-full ${isLight ? 'bg-slate-300' : 'bg-slate-600'}`} />
-            <span>Waiting</span>
+            <span>Wait</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-red-500" />
-            <span>Error</span>
+            <span>Err</span>
           </div>
         </div>
       </div>
 
       {/* Main Graph Canvas */}
-      <div className="flex-1 w-full h-full relative">
+      <div className="flex-1 w-full h-full relative min-h-[300px]">
         <ReactFlow
           nodes={nodes}
           edges={edges}
           nodeTypes={nodeTypes}
           fitView
-          defaultViewport={{ x: 0, y: 0, zoom: 0.9 }}
-          fitViewOptions={{ padding: 0.05 }}
-          minZoom={0.4}
+          fitViewOptions={{ padding: 0.12 }}
+          minZoom={0.3}
           maxZoom={1.5}
+          panOnDrag={true}
+          zoomOnPinch={true}
+          preventScrolling={false}
           proOptions={{ hideAttribution: true }}
           className={isLight ? 'bg-slate-50' : 'bg-[#07090e]'}
         >
@@ -146,25 +148,30 @@ export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToo
             gap={24} 
             size={1} 
           />
-          <Controls 
-            className={isLight 
-              ? '!bg-white !border-slate-300 !fill-slate-800 !rounded-lg shadow-sm'
-              : '!bg-[#0d121d] !border-[#1e2638] !fill-slate-300 !rounded-lg'
-            }
-          />
+          <Controls
+  className={
+    isLight
+      ? '!bg-white !border-slate-300 !rounded-lg !shadow-sm !m-2 ' +
+        '[&>button]:!bg-white [&>button]:!text-slate-700 [&>button]:!border-slate-200 ' +
+        '[&>button:hover]:!bg-slate-100'
+      : '!bg-[#111827] !border-[#263247] !rounded-lg !shadow-sm !m-2 ' +
+        '[&>button]:!bg-[#111827] [&>button]:!text-slate-300 [&>button]:!border-[#263247] ' +
+        '[&>button:hover]:!bg-[#1e293b]'
+  }
+/>
         </ReactFlow>
       </div>
 
       {/* Telemetry Footer */}
-      <div className={`h-8 border-t px-4 flex items-center justify-between text-[11px] font-mono ${
+      <div className={`min-h-8 border-t px-3 sm:px-4 py-1.5 sm:py-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 text-[10px] sm:text-[11px] font-mono ${
         isLight ? 'bg-white border-slate-200 text-slate-700' : 'bg-[#0a0d14] border-[#1a2234] text-slate-400'
       }`}>
-        <div className="flex items-center gap-2">
-          <Server className={`w-3.5 h-3.5 ${isLight ? 'text-slate-800' : 'text-sky-400'}`} />
-          <span>MCP PROTOCOL ACTIVE: 3 TOOLS DISPATCHABLE</span>
+        <div className="flex items-center gap-1.5 truncate">
+          <Server className={`w-3.5 h-3.5 shrink-0 ${isLight ? 'text-slate-800' : 'text-sky-400'}`} />
+          <span className="truncate">MCP PROTOCOL: 3 TOOLS DISPATCHABLE</span>
         </div>
         <div className="flex items-center gap-2 font-semibold">
-          <span>VECTOR DB: 384-DIM COSINE INDEX</span>
+          <span>VECTOR DB: 384-DIM COSINE</span>
         </div>
       </div>
     </div>
