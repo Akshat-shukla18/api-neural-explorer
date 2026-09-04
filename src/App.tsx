@@ -316,6 +316,25 @@ export function App() {
               </button>
 
               <button
+                onClick={() => setMobileTab('chat')}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono text-[11px] font-semibold whitespace-nowrap transition-all ${
+                  mobileTab === 'chat'
+                    ? theme === 'light'
+                      ? 'bg-slate-900 text-white shadow-sm'
+                      : 'bg-emerald-500 text-slate-950 font-bold shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+                    : theme === 'light'
+                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      : 'bg-[#131b2c] text-slate-300 hover:bg-[#1a253c]'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                <span>AI Query</span>
+                {isQueryProcessing && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                )}
+              </button>
+
+              <button
                 onClick={() => setMobileTab('trace')}
                 className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono text-[11px] font-semibold whitespace-nowrap transition-all ${
                   mobileTab === 'trace'
@@ -336,25 +355,6 @@ export function App() {
                 }`}>
                   {traceLogs.length}
                 </span>
-              </button>
-
-              <button
-                onClick={() => setMobileTab('chat')}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono text-[11px] font-semibold whitespace-nowrap transition-all ${
-                  mobileTab === 'chat'
-                    ? theme === 'light'
-                      ? 'bg-slate-900 text-white shadow-sm'
-                      : 'bg-emerald-500 text-slate-950 font-bold shadow-[0_0_12px_rgba(16,185,129,0.3)]'
-                    : theme === 'light'
-                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                      : 'bg-[#131b2c] text-slate-300 hover:bg-[#1a253c]'
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                <span>AI Query</span>
-                {isQueryProcessing && (
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                )}
               </button>
             </div>
 
@@ -402,15 +402,6 @@ export function App() {
                     />
                   </div>
                 )}
-                {mobileTab === 'trace' && (
-                  <div className="flex-1 min-h-0 h-full overflow-hidden flex flex-col">
-                    <LiveTraceConsole
-                      logs={traceLogs}
-                      onClearLogs={() => setTraceLogs([])}
-                      theme={theme}
-                    />
-                  </div>
-                )}
                 {mobileTab === 'chat' && (
                   <div className="flex-1 min-h-0 h-full overflow-hidden flex flex-col">
                     <AiQueryPanel
@@ -420,6 +411,15 @@ export function App() {
                       activeProcessingStep={activeProcessingStep}
                       activeRagChunks={activeRagChunks}
                       onSelectSourceRecord={handleSelectSourceRecord}
+                      theme={theme}
+                    />
+                  </div>
+                )}
+                {mobileTab === 'trace' && (
+                  <div className="flex-1 min-h-0 h-full overflow-hidden flex flex-col">
+                    <LiveTraceConsole
+                      logs={traceLogs}
+                      onClearLogs={() => setTraceLogs([])}
                       theme={theme}
                     />
                   </div>
@@ -453,18 +453,7 @@ export function App() {
                   />
                 </div>
 
-                {/* 3. Live Trace Console Block */}
-                <div className={`rounded-xl border overflow-hidden shadow-sm h-[340px] flex flex-col ${
-                  theme === 'light' ? 'bg-slate-900 border-slate-700' : 'bg-[#05070a] border-[#1e2638]'
-                }`}>
-                  <LiveTraceConsole
-                    logs={traceLogs}
-                    onClearLogs={() => setTraceLogs([])}
-                    theme={theme}
-                  />
-                </div>
-
-                {/* 4. AI Query Chat Block */}
+                {/* 3. AI Query Chat Block */}
                 <div className={`rounded-xl border overflow-hidden shadow-sm h-[580px] flex flex-col ${
                   theme === 'light' ? 'bg-white border-slate-200' : 'bg-[#090c13] border-[#1e2638]'
                 }`}>
@@ -475,6 +464,17 @@ export function App() {
                     activeProcessingStep={activeProcessingStep}
                     activeRagChunks={activeRagChunks}
                     onSelectSourceRecord={handleSelectSourceRecord}
+                    theme={theme}
+                  />
+                </div>
+
+                {/* 4. Live Trace Console Block */}
+                <div className={`rounded-xl border overflow-hidden shadow-sm h-[340px] flex flex-col ${
+                  theme === 'light' ? 'bg-slate-900 border-slate-700' : 'bg-[#05070a] border-[#1e2638]'
+                }`}>
+                  <LiveTraceConsole
+                    logs={traceLogs}
+                    onClearLogs={() => setTraceLogs([])}
                     theme={theme}
                   />
                 </div>
