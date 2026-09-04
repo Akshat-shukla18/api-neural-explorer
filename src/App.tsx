@@ -321,7 +321,7 @@ export function App() {
                   mobileTab === 'chat'
                     ? theme === 'light'
                       ? 'bg-slate-900 text-white shadow-sm'
-                      : 'bg-emerald-500 text-slate-950 font-bold shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+                      : 'bg-sky-500 text-slate-950 font-bold shadow-[0_0_12px_rgba(56,189,248,0.3)]'
                     : theme === 'light'
                       ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                       : 'bg-[#131b2c] text-slate-300 hover:bg-[#1a253c]'
@@ -330,7 +330,7 @@ export function App() {
                 <Sparkles className="w-3.5 h-3.5 shrink-0" />
                 <span>AI Query</span>
                 {isQueryProcessing && (
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
                 )}
               </button>
 
