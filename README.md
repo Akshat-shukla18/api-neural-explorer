@@ -18,7 +18,6 @@ Instead of treating AI retrieval as a black box, API Neural Explorer visually de
 
 
 ## 🎨 Dual Theme Identity
-
 API Neural Explorer includes a seamless theme switcher in the top navigation bar supporting two curated visual modes:
 
 - ☀️ **Day Mode**: Crisp **Grey, White, and Black** developer-console aesthetic with high contrast slate borders and dark typography.
