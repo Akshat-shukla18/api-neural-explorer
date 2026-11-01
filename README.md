@@ -12,7 +12,21 @@
 
 **API Neural Network** is an enterprise-grade developer observability platform and grounded semantic retrieval engine that transforms live JSON REST APIs into queryable vector embeddings with real-time Model Context Protocol (MCP) tool execution.
 
+<<<<<<< HEAD
 Unlike mock demonstrations that simulate delays or fabricate similarity scores, API Neural Network performs **100% genuine operations**: real HTTP fetches, deterministic JSON chunking, 384-dimensional dense semantic embeddings, persistent vector storage with source namespace isolation, and fact-checked RAG responses citing exact records.
+=======
+Instead of treating AI retrieval as a black box, API Neural Explorer visually demonstrates the complete end-to-end data pipeline: **API Ingestion → JSON AST Parsing → NLP Preprocessing → Tokenization → Chunking → Dense Embeddings → Vector Indexing → Model Context Protocol (MCP) Tool Calls → RAG Retrieval → Grounded LLM Response.**
+
+---
+<img width="953" height="443" alt="image" src="https://github.com/user-attachments/assets/ee3c3239-c4bf-41f4-93f2-80e8757e7c53" />
+
+
+## 🎨 Dual Theme Identity
+API Neural Explorer includes a seamless theme switcher in the top navigation bar supporting two curated visual modes:
+
+- ☀️ **Day Mode**: Crisp **Grey, White, and Black** developer-console aesthetic with high contrast slate borders and dark typography.
+- 🌙 **Night Mode**: Futuristic **Black, White, and Matrix Green** theme with neon green glows (`#10b981`, `#00ff88`) and deep dark surfaces.
+>>>>>>> 58c8c833b289ab9869ece8df4e8c54b6fec475ad
 
 ---
 
