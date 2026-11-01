@@ -1,6 +1,8 @@
-import type { ApiRecord, ChatMessage, RagChunk } from '../types';
+import type { ApiRecord, ChatMessage, RagChunk, McpToolCall } from '../types';
 import { executeMcpTool } from './mcpService';
 import { searchVectorDatabase } from './vectorService';
+import { getActiveLlmProvider } from './llm/llmProvider';
+import { planFromNaturalLanguage, executePlan } from './operationPlanner';
 
 export async function processAiQuery(
   userQuery: string,
@@ -8,90 +10,111 @@ export async function processAiQuery(
   allChunks: RagChunk[],
   onStepUpdate?: (step: string) => void
 ): Promise<{ message: ChatMessage; retrievedChunks: RagChunk[] }> {
-  onStepUpdate?.("Searching API knowledge...");
-  await new Promise(r => setTimeout(r, 250));
+  onStepUpdate?.("Analyzing query intent & generating operation AST...");
 
-  onStepUpdate?.("MCP: api.search()");
-  const mcpResult = await executeMcpTool('api.search()', { query: userQuery, limit: 4 });
+  const plan = planFromNaturalLanguage(userQuery);
+  let activeToolCall: McpToolCall | undefined;
+  let retrievedChunks: RagChunk[] = [];
 
-  onStepUpdate?.("Retrieving relevant chunks...");
-  const retrievedChunks = searchVectorDatabase(userQuery, allChunks);
-  await new Promise(r => setTimeout(r, 300));
-
-  onStepUpdate?.("Building RAG context...");
-  await new Promise(r => setTimeout(r, 200));
-
-  onStepUpdate?.("Generating answer...");
-  await new Promise(r => setTimeout(r, 250));
-
-  const queryLower = userQuery.toLowerCase();
-  let answerText = "";
-  const sources: ChatMessage['sources'] = [];
-
-  if (queryLower.includes('10000') || queryLower.includes('10,000') || queryLower.includes('cost') || queryLower.includes('price')) {
-    const expensiveProducts = allRecords.filter(r => (r.price || r.amount) && (r.price || r.amount) > 10000);
-    if (expensiveProducts.length > 0) {
-      answerText = `Based on the connected API, ${expensiveProducts.length} items have a price above ₹10,000.`;
-      expensiveProducts.forEach(p => {
-        sources.push({
-          id: p.id,
-          name: p.name || p.title || `Item #${p.id}`,
-          price: p.price || p.amount,
-          category: p.category || p.department || p.type,
-          snippet: p.description || `Price: ₹${(p.price || p.amount)?.toLocaleString()}`
-        });
-      });
-    } else {
-      answerText = `Based on the connected API vector index, no items exceeded ₹10,000 in price.`;
-    }
-  } else if (queryLower.includes('shoe') || queryLower.includes('nike') || queryLower.includes('adidas')) {
-    const shoeProducts = allRecords.filter(r => 
-      (r.category && r.category.toLowerCase().includes('shoe')) ||
-      (r.brand && r.brand.toLowerCase().includes('nike')) ||
-      (r.brand && r.brand.toLowerCase().includes('adidas')) ||
-      (r.name && r.name.toLowerCase().includes('shoe'))
-    );
-    answerText = `Found ${shoeProducts.length || retrievedChunks.length} matching footwear products in the vector store with high similarity.`;
-    (shoeProducts.length > 0 ? shoeProducts : allRecords.slice(0, 3)).forEach(p => {
-      sources.push({
-        id: p.id,
-        name: p.name || p.title || `Item #${p.id}`,
-        price: p.price || p.amount,
-        category: p.category,
-        snippet: p.description || `Category: ${p.category}`
-      });
-    });
-  } else if (queryLower.includes('user') || queryLower.includes('role') || queryLower.includes('engineer') || queryLower.includes('team')) {
-    answerText = `The API directory lists active system engineers and platform leads.`;
-    allRecords.slice(0, 3).forEach(u => {
-      sources.push({
-        id: u.id,
-        name: u.name || `User #${u.id}`,
-        category: u.department || u.role,
-        snippet: `${u.role || 'Member'} • ${u.location || u.status}`
-      });
-    });
-  } else {
-    const topChunk = retrievedChunks[0];
-    answerText = `Retrieved ${retrievedChunks.length} matching context chunks from the vector database (top similarity: ${(topChunk?.similarity || 0.91)}). Key finding: ${topChunk?.recordTitle || 'Record'} contains matching attributes.`;
+  if (plan.intent === 'filter' && plan.operations[0].type === 'filter') {
+    const fOp = plan.operations[0];
+    onStepUpdate?.(`MCP: api.filter(${fOp.field} ${fOp.operator} ${fOp.value})`);
     
-    retrievedChunks.slice(0, 3).forEach(c => {
-      sources.push({
-        id: c.recordId,
-        name: c.recordTitle,
-        price: c.price,
-        category: c.category,
-        snippet: c.content.slice(0, 70) + '...'
-      });
+    activeToolCall = await executeMcpTool('api.filter()', {
+      field: fOp.field,
+      operator: fOp.operator,
+      value: String(fOp.value)
     });
+
+    if (activeToolCall.status === 'SUCCESS' && Array.isArray(activeToolCall.data)) {
+      const matchedRecs = activeToolCall.data;
+      retrievedChunks = matchedRecs.map((rec: any, idx: number) => ({
+        id: rec.chunkId || rec.id,
+        chunkNumber: idx + 1,
+        similarity: 1.0,
+        sourceId: rec.sourceId,
+        sourceUrl: rec.sourceUrl,
+        recordId: rec.recordId,
+        recordTitle: rec.metadata?.title || `Record #${rec.recordId}`,
+        category: rec.metadata?.category,
+        price: rec.metadata?.price,
+        content: rec.content,
+        fieldPaths: rec.fieldPaths || [],
+        chunkIndex: idx,
+        contentHash: rec.contentHash || '',
+        metadata: rec.metadata || {}
+      }));
+    }
+  } else if (plan.intent === 'retrieve' && plan.operations[0].type === 'retrieve') {
+    const rOp = plan.operations[0];
+    onStepUpdate?.(`MCP: api.retrieve(id: ${rOp.recordId})`);
+    activeToolCall = await executeMcpTool('api.retrieve()', {
+      recordId: rOp.recordId
+    });
+
+    if (activeToolCall.status === 'SUCCESS' && Array.isArray(activeToolCall.data)) {
+      retrievedChunks = activeToolCall.data.map((rec: any, idx: number) => ({
+        id: rec.chunkId || rec.id,
+        chunkNumber: idx + 1,
+        similarity: 1.0,
+        sourceId: rec.sourceId,
+        sourceUrl: rec.sourceUrl,
+        recordId: rec.recordId,
+        recordTitle: rec.metadata?.title || `Record #${rec.recordId}`,
+        category: rec.metadata?.category,
+        price: rec.metadata?.price,
+        content: rec.content,
+        fieldPaths: rec.fieldPaths || [],
+        chunkIndex: idx,
+        contentHash: rec.contentHash || '',
+        metadata: rec.metadata || {}
+      }));
+    }
+  } else {
+    // Default semantic search
+    onStepUpdate?.("MCP: api.search()");
+    activeToolCall = await executeMcpTool('api.search()', {
+      query: userQuery,
+      limit: 5,
+      threshold: 0.1
+    });
+
+    if (activeToolCall.status === 'SUCCESS' && Array.isArray(activeToolCall.data) && activeToolCall.data.length > 0) {
+      retrievedChunks = activeToolCall.data;
+    } else {
+      // Fallback search against in-memory chunk list if vector store has not populated yet
+      retrievedChunks = await searchVectorDatabase(userQuery, allChunks, 0.1, 5);
+    }
   }
+
+  // If MCP tool returned empty for filter/retrieve, check in-memory chunks as fallback
+  if (retrievedChunks.length === 0 && allChunks.length > 0) {
+    retrievedChunks = await searchVectorDatabase(userQuery, allChunks, 0.1, 5);
+  }
+
+  onStepUpdate?.("Synthesizing grounded answer with active LLM provider...");
+  const llm = getActiveLlmProvider();
+  const llmResult = await llm.generateAnswer({
+    userQuery,
+    contextChunks: retrievedChunks,
+    allRecords
+  });
+
+  const sources: ChatMessage['sources'] = retrievedChunks.slice(0, 4).map(c => ({
+    id: c.recordId,
+    name: c.recordTitle || `Record #${c.recordId}`,
+    price: c.price,
+    category: c.category,
+    snippet: c.content.slice(0, 160) + (c.content.length > 160 ? '...' : ''),
+    fieldPaths: c.fieldPaths
+  }));
 
   const message: ChatMessage = {
     id: `msg-${Date.now()}`,
     sender: 'assistant',
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-    text: answerText,
-    mcpToolCall: mcpResult,
+    text: llmResult.text,
+    mcpToolCall: activeToolCall,
     ragChunks: retrievedChunks,
     sources
   };

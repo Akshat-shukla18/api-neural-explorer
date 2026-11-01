@@ -2,6 +2,8 @@ export type AppState = 'DISCONNECTED' | 'PROCESSING' | 'READY' | 'ERROR';
 
 export type NodeStatus = 'WAITING' | 'PROCESSING' | 'COMPLETE' | 'ERROR';
 
+export type DataSourceMode = 'live' | 'demo';
+
 export type StageId = 
   | 'api'
   | 'json_parser'
@@ -51,8 +53,17 @@ export interface ApiRecord {
   [key: string]: any;
 }
 
+export interface ApiFetchOptions {
+  mode?: DataSourceMode;
+  headers?: Record<string, string>;
+  timeoutMs?: number;
+  maxSizeBytes?: number;
+  sampleId?: string;
+}
+
 export interface ApiFetchResult {
   url: string;
+  mode: DataSourceMode;
   status: number;
   statusText: string;
   responseTimeMs: number;
@@ -63,6 +74,12 @@ export interface ApiFetchResult {
   dataSizeBytes: number;
   data: ApiRecord[];
   rawJson: string;
+  fieldPaths?: string[];
+  pagination?: {
+    page?: number;
+    total?: number;
+    hasMore?: boolean;
+  };
 }
 
 export interface NlpAnalysis {
@@ -72,6 +89,7 @@ export interface NlpAnalysis {
   lemmatizedTokens: string[];
   chunksCount: number;
   vocabularySize: number;
+  totalTokensCount?: number;
 }
 
 export interface VectorEmbedding {
@@ -80,27 +98,75 @@ export interface VectorEmbedding {
   status: 'GENERATED' | 'INDEXED' | 'IDLE';
   sampleVector: number[];
   heatmapValues: number[];
+  inferenceTimeMs?: number;
 }
 
 export interface RagChunk {
   id: string;
   chunkNumber: number;
   similarity: number;
+  sourceId: string;
+  sourceUrl: string;
   recordId: string | number;
   recordTitle: string;
   category?: string;
   price?: number;
   content: string;
+  fieldPaths: string[];
+  chunkIndex: number;
+  contentHash: string;
   metadata: Record<string, any>;
 }
 
+export interface VectorRecord {
+  id: string;
+  chunkId: string;
+  sourceId: string;
+  sourceUrl: string;
+  recordId: string | number;
+  content: string;
+  fieldPaths: string[];
+  embedding: number[];
+  modelId: string;
+  dimensions: number;
+  timestamp: number;
+  contentHash: string;
+  metadata: Record<string, any>;
+}
+
+export interface EmbeddingProvider {
+  readonly providerId: string;
+  readonly modelId: string;
+  readonly dimensions: number;
+  embedDocuments(texts: string[]): Promise<number[][]>;
+  embedQuery(text: string): Promise<number[]>;
+}
+
+export interface EmbeddingConfig {
+  provider: 'local-minilm' | 'semantic-feature' | 'remote-openai' | 'remote-gemini' | 'remote-ollama';
+  modelId: string;
+  dimensions: number;
+  apiKey?: string;
+  endpoint?: string;
+}
+
+export interface LlmConfig {
+  provider: 'retrieval-only' | 'gemini' | 'openai' | 'ollama';
+  modelId: string;
+  apiKey?: string;
+  endpoint?: string;
+  temperature?: number;
+}
+
 export interface McpToolCall {
-  tool: 'api.fetch()' | 'api.search()' | 'api.retrieve()';
+  tool: 'api.fetch()' | 'api.search()' | 'api.retrieve()' | 'api.filter()';
   timestamp: string;
   params: Record<string, any>;
   status: 'EXECUTING' | 'SUCCESS' | 'FAILED';
   resultCount?: number;
   latencyMs: number;
+  error?: string;
+  data?: any;
 }
 
 export interface ChatMessage {
@@ -118,6 +184,7 @@ export interface ChatMessage {
     price?: number;
     category?: string;
     snippet: string;
+    fieldPaths?: string[];
   }[];
 }
 
@@ -128,3 +195,28 @@ export interface SampleApiOption {
   url: string;
   sampleData: ApiRecord[];
 }
+
+export type ApiOperation =
+  | {
+      type: 'fetch';
+      sourceUrl: string;
+      mode?: DataSourceMode;
+    }
+  | {
+      type: 'search';
+      query: string;
+      limit?: number;
+      sourceUrl?: string;
+    }
+  | {
+      type: 'filter';
+      field: string;
+      operator: 'eq' | 'gt' | 'gte' | 'lt' | 'lte' | 'contains';
+      value: string | number | boolean;
+      sourceUrl?: string;
+    }
+  | {
+      type: 'retrieve';
+      recordId: string | number;
+      sourceUrl?: string;
+    };

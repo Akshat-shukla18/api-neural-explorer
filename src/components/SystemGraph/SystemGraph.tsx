@@ -168,7 +168,7 @@ export const SystemGraph: React.FC<SystemGraphProps> = ({ stageStates, activeToo
       }`}>
         <div className="flex items-center gap-1.5 truncate">
           <Server className={`w-3.5 h-3.5 shrink-0 ${isLight ? 'text-slate-800' : 'text-sky-400'}`} />
-          <span className="truncate">MCP PROTOCOL: 3 TOOLS DISPATCHABLE</span>
+          <span className="truncate">MCP PROTOCOL: 4 TOOLS DISPATCHABLE</span>
         </div>
         <div className="flex items-center gap-2 font-semibold">
           <span>VECTOR DB: 384-DIM COSINE</span>

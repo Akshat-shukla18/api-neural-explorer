@@ -195,6 +195,40 @@ export const ApiDataPanel: React.FC<ApiDataPanelProps> = ({
           </div>
         </div>
 
+        {/* Discovered Field Paths */}
+        {apiData.fieldPaths && apiData.fieldPaths.length > 0 && (
+          <div className={`p-3 rounded-lg border space-y-2 ${
+            isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#0d121d] border-[#1e2638]'
+          }`}>
+            <div className="flex items-center justify-between">
+              <span className={`font-bold uppercase tracking-wider text-[11px] block ${
+                isLight ? 'text-slate-900' : 'text-sky-400'
+              }`}>
+                DISCOVERED FIELDS
+              </span>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
+                isLight ? 'bg-slate-200 text-slate-700' : 'bg-sky-950 text-sky-300 border border-sky-800/60'
+              }`}>
+                {apiData.fieldPaths.length} paths
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto custom-scrollbar pt-1">
+              {apiData.fieldPaths.map((path, idx) => (
+                <span
+                  key={idx}
+                  className={`px-1.5 py-0.5 rounded border text-[10px] font-mono ${
+                    isLight
+                      ? 'bg-slate-100 border-slate-300 text-slate-800'
+                      : 'bg-[#111622] border-[#1e2638] text-slate-300'
+                  }`}
+                >
+                  {path}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* NLP INSPECTOR */}
         {nlpAnalysis && (
           <div className={`rounded-lg border overflow-hidden ${

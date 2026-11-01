@@ -3,29 +3,30 @@ import { Network, ArrowRight, ShieldCheck, Cpu, Code2, Database, Zap } from 'luc
 import Hyperspeed from './Hyperspeed';
 import { GuidePopup } from './GuidePopup';
 import { SAMPLE_APIS } from '../services/apiService';
-import type { SampleApiOption } from '../types';
+import type { SampleApiOption, DataSourceMode } from '../types';
 
 interface HeroConnectProps {
-  onConnect: (url: string) => void;
+  onConnect: (url: string, mode?: DataSourceMode) => void;
   isLoading: boolean;
   theme?: 'dark' | 'light';
 }
 
 export const HeroConnect: React.FC<HeroConnectProps> = ({ onConnect, isLoading, theme = 'light' }) => {
-  const [urlInput, setUrlInput] = useState<string>('https://api.example.com/products');
+  const [urlInput, setUrlInput] = useState<string>('https://jsonplaceholder.typicode.com/posts');
+  const [activeMode, setActiveMode] = useState<DataSourceMode>('live');
   const [showGuide, setShowGuide] = useState(true);
   const isLight = theme === 'light';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (urlInput.trim()) {
-      onConnect(urlInput.trim());
+      onConnect(urlInput.trim(), activeMode);
     }
   };
 
   const handleSelectSample = (sample: SampleApiOption) => {
     setUrlInput(sample.url);
-    onConnect(sample.url);
+    onConnect(sample.url, 'demo');
   };
 
   const effectOptions = React.useMemo(() => ({
@@ -106,6 +107,48 @@ export const HeroConnect: React.FC<HeroConnectProps> = ({ onConnect, isLoading, 
 
         {/* Input Bar */}
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 max-w-2xl mx-auto">
+          {/* Mode Selector */}
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveMode('live');
+                if (urlInput.startsWith('https://api.example.com')) {
+                  setUrlInput('https://jsonplaceholder.typicode.com/posts');
+                }
+              }}
+              className={`px-3 py-1 rounded-full text-xs font-mono font-medium transition-all ${
+                activeMode === 'live'
+                  ? isLight
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-sky-500 text-slate-950 font-bold shadow-[0_0_12px_rgba(56,189,248,0.3)]'
+                  : isLight
+                    ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                    : 'bg-[#111622] text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              ● LIVE REST API
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveMode('demo');
+                setUrlInput('https://api.example.com/v1/products');
+              }}
+              className={`px-3 py-1 rounded-full text-xs font-mono font-medium transition-all ${
+                activeMode === 'demo'
+                  ? isLight
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-sky-500 text-slate-950 font-bold shadow-[0_0_12px_rgba(56,189,248,0.3)]'
+                  : isLight
+                    ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                    : 'bg-[#111622] text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              ★ DEMO DATASETS
+            </button>
+          </div>
+
           <div className={`relative flex flex-col sm:flex-row items-stretch sm:items-center rounded-xl border transition-all p-1.5 gap-1.5 sm:gap-0 ${
             isLight
               ? 'bg-white border-slate-300 focus-within:border-slate-900 shadow-md'

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { 
   Send, 
   Sparkles, 
@@ -9,7 +9,7 @@ import {
   ExternalLink,
   ArrowRight
 } from 'lucide-react';
-import type { ChatMessage, RagChunk } from '../../types';
+import type { ApiRecord, ChatMessage, RagChunk } from '../../types';
 
 interface AiQueryPanelProps {
   messages: ChatMessage[];
@@ -19,14 +19,110 @@ interface AiQueryPanelProps {
   activeRagChunks?: RagChunk[];
   onSelectSourceRecord?: (recordId: string | number) => void;
   theme?: 'dark' | 'light';
+  /** Ingested API records — used to generate context-aware suggested queries. */
+  apiRecords?: ApiRecord[];
+  /** Discovered field paths from the API schema. */
+  apiFields?: string[];
 }
 
-const SAMPLE_QUESTIONS = [
-  "Which products cost more than ₹10,000?",
-  "Find Nike footwear with max cushioning",
-  "Which items are currently in electronics?",
-  "Who are the senior infrastructure engineers?"
+const FALLBACK_QUESTIONS = [
+  "Show details for record #1",
+  "Find items with high relevance",
+  "What categories exist in this data?",
+  "Summarize this API data"
 ];
+
+/** Generate smart suggested questions based on actual API data schema and content. */
+function generateDynamicQuestions(records: ApiRecord[], fields: string[]): string[] {
+  if (records.length === 0) return FALLBACK_QUESTIONS;
+
+  const questions: string[] = [];
+  const fieldSet = new Set(fields.map(f => f.toLowerCase()));
+  const sampleRecord = records[0];
+  const allKeys = new Set<string>();
+  for (const r of records.slice(0, 20)) {
+    Object.keys(r).forEach(k => allKeys.add(k.toLowerCase()));
+  }
+
+  // Detect available field types
+  const hasPrice = allKeys.has('price') || allKeys.has('cost') || allKeys.has('amount');
+  const hasRating = allKeys.has('rating') || allKeys.has('score') || allKeys.has('stars');
+  const hasCategory = allKeys.has('category') || allKeys.has('type') || allKeys.has('department');
+  const hasStock = allKeys.has('stock') || allKeys.has('quantity') || allKeys.has('inventory');
+  const hasName = allKeys.has('name') || allKeys.has('title') || allKeys.has('label');
+  const hasTags = allKeys.has('tags') || allKeys.has('labels') || allKeys.has('keywords');
+  const hasInStock = allKeys.has('instock') || allKeys.has('in_stock') || allKeys.has('available');
+
+  // Determine record type label
+  const recordLabel = hasPrice ? 'products' : allKeys.has('title') && allKeys.has('body') ? 'posts' : 'records';
+
+  // 1. Count question
+  questions.push(`How many ${recordLabel} are in this API?`);
+
+  // 2. Category question
+  if (hasCategory) {
+    questions.push(`List all categories and their counts`);
+  }
+
+  // 3. Price-based question
+  if (hasPrice) {
+    // Find a meaningful price threshold
+    const prices = records
+      .map(r => r.price ?? r.cost ?? r.amount)
+      .filter((v): v is number => typeof v === 'number');
+    if (prices.length > 0) {
+      const median = prices.sort((a, b) => a - b)[Math.floor(prices.length / 2)];
+      const threshold = Math.round(median * 1.5);
+      questions.push(`Which ${recordLabel} have price greater than ${threshold}?`);
+    }
+    questions.push(`Show the top 5 most expensive ${recordLabel}`);
+  }
+
+  // 4. Rating-based question
+  if (hasRating) {
+    questions.push(`Find ${recordLabel} with rating above 4`);
+  }
+
+  // 5. Stock/availability question
+  if (hasStock) {
+    questions.push(`Which ${recordLabel} have low stock (below 20)?`);
+  } else if (hasInStock) {
+    questions.push(`How many ${recordLabel} are currently in stock?`);
+  }
+
+  // 6. Tags question
+  if (hasTags) {
+    const sampleTags = records.slice(0, 10).flatMap(r => {
+      const t = r.tags || r.labels || r.keywords;
+      return Array.isArray(t) ? t : [];
+    });
+    if (sampleTags.length > 0) {
+      const randomTag = sampleTags[Math.floor(Math.random() * sampleTags.length)];
+      questions.push(`Find ${recordLabel} tagged with "${randomTag}"`);
+    }
+  }
+
+  // 7. Detail question — pick a random record
+  if (hasName) {
+    const sampleIdx = Math.min(2, records.length - 1);
+    questions.push(`Show details for record #${records[sampleIdx]?.id ?? 1}`);
+  }
+
+  // 8. Summary question
+  questions.push(`Summarize this API data`);
+
+  // 9. Category-specific filter (if categories exist)
+  if (hasCategory) {
+    const categories = [...new Set(records.map(r => String(r.category || r.type || r.department)).filter(Boolean))];
+    if (categories.length > 1) {
+      const randomCat = categories[Math.floor(Math.random() * categories.length)];
+      questions.push(`How many ${recordLabel} are in the "${randomCat}" category?`);
+    }
+  }
+
+  // Return first 5 unique questions
+  return questions.slice(0, 5);
+}
 
 export const AiQueryPanel: React.FC<AiQueryPanelProps> = ({
   messages,
@@ -35,12 +131,20 @@ export const AiQueryPanel: React.FC<AiQueryPanelProps> = ({
   activeProcessingStep,
   activeRagChunks,
   onSelectSourceRecord,
-  theme = 'light'
+  theme = 'light',
+  apiRecords = [],
+  apiFields = []
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [isRagDrawerOpen, setIsRagDrawerOpen] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isLight = theme === 'light';
+
+  // Generate dynamic questions based on actual API data
+  const suggestedQuestions = useMemo(
+    () => generateDynamicQuestions(apiRecords, apiFields),
+    [apiRecords, apiFields]
+  );
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -97,7 +201,7 @@ export const AiQueryPanel: React.FC<AiQueryPanelProps> = ({
               SUGGESTED QUERIES:
             </span>
             <div className="flex flex-col gap-1.5">
-              {SAMPLE_QUESTIONS.map((q, idx) => (
+              {suggestedQuestions.map((q, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSelectPreset(q)}
@@ -152,9 +256,9 @@ export const AiQueryPanel: React.FC<AiQueryPanelProps> = ({
                   <span className="opacity-70">{msg.timestamp}</span>
                 </div>
 
-                <p className="leading-relaxed font-sans">
+                <div className="leading-relaxed font-sans whitespace-pre-wrap">
                   {msg.text}
-                </p>
+                </div>
 
                 {msg.mcpToolCall && (
                   <div className={`p-2 rounded border font-mono text-[10px] flex items-center justify-between ${

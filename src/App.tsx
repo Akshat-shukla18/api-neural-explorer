@@ -18,12 +18,17 @@ import type {
   NlpAnalysis, 
   VectorEmbedding, 
   RagChunk, 
-  ChatMessage 
+  ChatMessage,
+  DataSourceMode,
+  VectorRecord
 } from './types';
 
 import { fetchApiData } from './services/apiService';
 import { processNlpData } from './services/nlpService';
+import { processRecordsIntoChunks } from './services/jsonProcessingService';
 import { createVectorEmbedding } from './services/vectorService';
+import { getActiveEmbeddingProvider } from './services/embeddings/embeddingProvider';
+import { globalVectorStore } from './services/vectorStore/indexedDbVectorStore';
 import { processAiQuery } from './services/ragService';
 
 const INITIAL_STAGES: Record<StageId, PipelineNodeData> = {
@@ -63,6 +68,7 @@ export function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [lastAttemptedUrl, setLastAttemptedUrl] = useState<string>('');
+  const [lastAttemptedMode, setLastAttemptedMode] = useState<DataSourceMode>('live');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -95,86 +101,111 @@ export function App() {
     }));
   }, []);
 
-  const runPipelineProcess = async (url: string) => {
+  const runPipelineProcess = async (url: string, mode: DataSourceMode = 'live') => {
     setLastAttemptedUrl(url);
+    setLastAttemptedMode(mode);
     setAppState('PROCESSING');
     setStageStates(INITIAL_STAGES);
     setTraceLogs([]);
     setErrorMessage(null);
 
     try {
+      // 1. Live API Ingestion
       updateStage('api', 'PROCESSING');
-      addLog('API_REQUEST', 'info', `GET ${url}`, 'Initiating HTTP fetch');
-      await new Promise(r => setTimeout(r, 220));
+      addLog('API_REQUEST', 'info', `GET ${url} [Mode: ${mode.toUpperCase()}]`, 'Initiating genuine HTTP fetch');
 
-      const fetchResult = await fetchApiData(url);
+      const fetchResult = await fetchApiData(url, { mode });
       setApiData(fetchResult);
 
       updateStage('api', 'COMPLETE', { 
         recordsCount: fetchResult.recordsCount, 
         latencyMs: fetchResult.responseTimeMs 
       });
-      addLog('API_RESPONSE', 'success', `${fetchResult.status} ${fetchResult.statusText}`, `${fetchResult.recordsCount} records fetched in ${fetchResult.responseTimeMs}ms`);
+      addLog('API_RESPONSE', 'success', `${fetchResult.status} ${fetchResult.statusText}`, `${fetchResult.recordsCount} records fetched in ${fetchResult.responseTimeMs}ms (${fetchResult.dataSizeBytes} bytes)`);
 
+      // 2. JSON Parser AST
       updateStage('json_parser', 'PROCESSING');
-      addLog('JSON_PARSER', 'info', 'Parsing structural JSON AST', `${fetchResult.fieldsCount} root fields, ${fetchResult.nestedFieldsCount} nested objects`);
-      await new Promise(r => setTimeout(r, 200));
+      addLog('JSON_PARSER', 'info', 'Parsing structural JSON AST & field paths', `${fetchResult.fieldsCount} unique fields, ${fetchResult.nestedFieldsCount} nested objects`);
       updateStage('json_parser', 'COMPLETE', { fieldsCount: fetchResult.fieldsCount });
-      addLog('JSON_PARSED', 'success', 'Schema structure validated');
+      addLog('JSON_PARSED', 'success', 'Schema structure validated', `Discovered ${(fetchResult.fieldPaths || []).length} field paths`);
 
+      // 3. NLP Tokenization & Vocabulary
       updateStage('nlp', 'PROCESSING');
       addLog('NLP_PROCESSING', 'info', 'Tokenization & stopword removal started');
-      await new Promise(r => setTimeout(r, 250));
-
-      const { analysis, chunks } = processNlpData(fetchResult.data);
+      const { analysis } = processNlpData(fetchResult.data);
       setNlpAnalysis(analysis);
-      setRagChunks(chunks);
-
       updateStage('nlp', 'COMPLETE', { tokensCount: analysis.tokens.length });
       addLog('NLP_COMPLETE', 'success', `${analysis.tokens.length} raw tokens processed`, `Vocabulary: ${analysis.vocabularySize} words`);
 
+      // 4. Tokenizer
       updateStage('tokenizer', 'PROCESSING');
-      await new Promise(r => setTimeout(r, 180));
-      updateStage('tokenizer', 'COMPLETE', { tokensCount: analysis.tokens.length });
+      updateStage('tokenizer', 'COMPLETE', { tokensCount: analysis.lemmatizedTokens.length });
       addLog('TOKENIZER', 'info', 'Lemmatized tokens produced', `Sample: [${analysis.lemmatizedTokens.slice(0, 4).join(', ')}]`);
 
+      // 5. Deterministic Chunking
       updateStage('chunker', 'PROCESSING');
-      await new Promise(r => setTimeout(r, 200));
+      const { chunks } = processRecordsIntoChunks(fetchResult.data, { sourceUrl: fetchResult.url });
+      setRagChunks(chunks);
       updateStage('chunker', 'COMPLETE', { chunksCount: chunks.length });
-      addLog('CHUNKING', 'success', `${chunks.length} sliding window chunks created`);
+      addLog('CHUNKING', 'success', `${chunks.length} bounded sliding-window RAG chunks created`);
 
+      // 6. Embedding Generation
       updateStage('embedding', 'PROCESSING');
-      addLog('EMBEDDINGS', 'info', 'Generating 384-dimensional dense vectors (all-MiniLM-L6-v2)');
-      await new Promise(r => setTimeout(r, 300));
+      const embeddingProvider = getActiveEmbeddingProvider();
+      addLog('EMBEDDINGS', 'info', `Calculating ${embeddingProvider.dimensions}-d embeddings with ${embeddingProvider.modelId}`);
 
-      const embeddingObj = createVectorEmbedding(analysis.sampleText);
+      const embedStart = performance.now();
+      const embeddingObj = await createVectorEmbedding(analysis.sampleText);
+      const embedLatency = Math.round(performance.now() - embedStart);
       setVectorEmbedding(embeddingObj);
+      updateStage('embedding', 'COMPLETE', { dimensions: embeddingProvider.dimensions, latencyMs: embedLatency });
+      addLog('EMBEDDINGS_DONE', 'success', `${embeddingProvider.dimensions}-d vectors generated in ${embedLatency}ms`);
 
-      updateStage('embedding', 'COMPLETE', { dimensions: 384 });
-      addLog('EMBEDDINGS_DONE', 'success', 'Vector embeddings calculated & normalized');
-
+      // 7. Vector Store Indexing
       updateStage('vector_db', 'PROCESSING');
-      addLog('VECTOR_SEARCH', 'info', 'Indexing vector embeddings into HNSW cosine matrix');
-      await new Promise(r => setTimeout(r, 220));
-      updateStage('vector_db', 'COMPLETE');
-      addLog('VECTOR_DB', 'success', `${chunks.length} vectors indexed successfully`);
+      addLog('VECTOR_INDEX', 'info', `Indexing ${chunks.length} chunks into persistent IndexedDB store`);
+      const indexStart = performance.now();
+      const chunkTexts = chunks.map(c => c.content);
+      const chunkEmbeddings = await embeddingProvider.embedDocuments(chunkTexts);
 
+      const vectorRecords: VectorRecord[] = chunks.map((c, idx) => ({
+        id: c.id,
+        chunkId: c.id,
+        sourceId: fetchResult.url,
+        sourceUrl: fetchResult.url,
+        recordId: c.recordId,
+        content: c.content,
+        fieldPaths: c.fieldPaths,
+        embedding: chunkEmbeddings[idx] || [],
+        modelId: embeddingProvider.modelId,
+        dimensions: embeddingProvider.dimensions,
+        timestamp: Date.now(),
+        contentHash: c.contentHash,
+        metadata: { ...c.metadata, title: c.recordTitle, price: c.price, category: c.category }
+      }));
+
+      await globalVectorStore.reindexSource(fetchResult.url, vectorRecords);
+      const indexLatency = Math.round(performance.now() - indexStart);
+      updateStage('vector_db', 'COMPLETE', { latencyMs: indexLatency });
+      addLog('VECTOR_DB', 'success', `${chunks.length} vectors indexed into store in ${indexLatency}ms`);
+
+      // 8. MCP Server & Tool Registry
       updateStage('mcp_server', 'PROCESSING');
-      addLog('MCP_SERVER', 'mcp', 'Model Context Protocol server online', 'Tools: api.fetch(), api.search(), api.retrieve()');
-      await new Promise(r => setTimeout(r, 200));
+      addLog('MCP_SERVER', 'mcp', 'Model Context Protocol server online', 'Active tools: api.fetch(), api.search(), api.retrieve(), api.filter()');
       updateStage('mcp_server', 'COMPLETE');
 
+      // 9. RAG & LLM
       updateStage('rag', 'COMPLETE');
       updateStage('llm', 'COMPLETE');
 
-      addLog('SYSTEM_READY', 'success', 'API Neural Explorer pipeline fully initialized', 'Ready for queries.');
+      addLog('SYSTEM_READY', 'success', 'API Neural Network pipeline fully initialized', 'Ready for live queries.');
 
       setMessages([
         {
           id: 'welcome-msg',
           sender: 'assistant',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          text: `API pipeline successfully connected! Indexed ${fetchResult.recordsCount} records into ${chunks.length} vector chunks with MCP tool bindings ready.`
+          text: `API pipeline successfully connected! Indexed ${fetchResult.recordsCount} records into ${chunks.length} vector chunks with real MCP tool bindings active.`
         }
       ]);
 
@@ -191,7 +222,6 @@ export function App() {
     if (!apiData || ragChunks.length === 0 || isQueryProcessing) return;
 
     setIsQueryProcessing(true);
-    setActiveToolCall('api.search()');
     addLog('USER_QUERY', 'info', `Query: "${userQuery}"`);
 
     const userMsg: ChatMessage = {
@@ -210,20 +240,21 @@ export function App() {
         (step) => {
           setActiveProcessingStep(step);
           if (step.includes('MCP:')) {
-            addLog('MCP_TOOL', 'mcp', 'Executing MCP tool call: api.search()');
-          } else if (step.includes('Retrieving')) {
-            addLog('VECTOR_SEARCH', 'info', 'Top similarity chunks retrieved from HNSW index');
-          } else if (step.includes('RAG')) {
-            addLog('RAG', 'info', 'Context prompt assembled for LLM');
-          } else if (step.includes('Generating')) {
-            addLog('LLM', 'success', 'Generating character streamed LLM response');
+            const toolMatch = step.match(/api\.[a-z]+\(\)/i);
+            const tool = toolMatch ? toolMatch[0] : 'api.search()';
+            setActiveToolCall(tool);
+            addLog('MCP_TOOL', 'mcp', `Executing MCP tool call: ${tool}`);
+          } else if (step.includes('Analyzing')) {
+            addLog('QUERY_PLAN', 'info', 'Parsing query intent & generating execution AST');
+          } else if (step.includes('Synthesizing')) {
+            addLog('LLM', 'success', 'Generating grounded answer with citations');
           }
         }
       );
 
       setActiveRagChunks(retrievedChunks);
       setMessages(prev => [...prev, message]);
-      addLog('LLM_RESPONSE', 'success', 'Response generated with source citations');
+      addLog('LLM_RESPONSE', 'success', `Response generated with ${message.sources?.length || 0} source citations`);
 
     } catch (err: any) {
       addLog('QUERY_ERROR', 'error', 'Failed to process AI query', err.message);
@@ -412,6 +443,8 @@ export function App() {
                       activeRagChunks={activeRagChunks}
                       onSelectSourceRecord={handleSelectSourceRecord}
                       theme={theme}
+                      apiRecords={apiData?.data}
+                      apiFields={apiData?.fieldPaths}
                     />
                   </div>
                 )}
@@ -465,6 +498,8 @@ export function App() {
                     activeRagChunks={activeRagChunks}
                     onSelectSourceRecord={handleSelectSourceRecord}
                     theme={theme}
+                    apiRecords={apiData?.data}
+                    apiFields={apiData?.fieldPaths}
                   />
                 </div>
 
@@ -531,6 +566,8 @@ export function App() {
                 activeRagChunks={activeRagChunks}
                 onSelectSourceRecord={handleSelectSourceRecord}
                 theme={theme}
+                apiRecords={apiData?.data}
+                apiFields={apiData?.fieldPaths}
               />
             </div>
 
@@ -542,8 +579,8 @@ export function App() {
       {appState === 'ERROR' && errorMessage && (
         <ErrorStateModal
           errorMessage={errorMessage}
-          onRetry={() => runPipelineProcess(lastAttemptedUrl || 'https://api.example.com/products')}
-          onUseSampleData={() => runPipelineProcess('https://api.example.com/products')}
+          onRetry={() => runPipelineProcess(lastAttemptedUrl || 'https://jsonplaceholder.typicode.com/posts', lastAttemptedMode)}
+          onUseSampleData={() => runPipelineProcess('https://api.example.com/v1/products', 'demo')}
           onClose={() => setAppState('DISCONNECTED')}
         />
       )}
@@ -551,6 +588,7 @@ export function App() {
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
+        theme={theme}
       />
     </div>
   );

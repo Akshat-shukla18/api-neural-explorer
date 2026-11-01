@@ -164,11 +164,11 @@ export const PipelineNodeComponent = ({ data }: { data: ExtendedNodeData }) => {
             <span className={`text-[9px] px-1 rounded font-mono ${
               isLight ? 'bg-slate-100 text-slate-800 border border-slate-300' : 'bg-sky-950 text-sky-400'
             }`}>
-              3 DISPATCHABLE
+              4 DISPATCHABLE
             </span>
           </div>
           <div className="space-y-1">
-            {['api.fetch()', 'api.search()', 'api.retrieve()'].map((toolName) => {
+            {['api.fetch()', 'api.search()', 'api.retrieve()', 'api.filter()'].map((toolName) => {
               const isToolActive = data.activeTool === toolName;
               return (
                 <div
